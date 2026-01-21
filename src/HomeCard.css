@@ -1,0 +1,40 @@
+.hm-square {
+  width: 40vw;
+  position: relative;
+}
+
+.hm-square-blur {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: 8%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  aspect-ratio: 16 / 9;
+  background-color: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(4px);
+  box-shadow: 30px 30px 5px rgba(0, 0, 0, 0.3);
+}
+
+.hm-page-content {
+  position: relative;
+  z-index: 1;
+  color: black;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: "VT323", monospace;
+  font-size: 1.5vw;
+}
+
+.hm-page-content h1 {
+  font-size: 3vw;
+}
+
+.hm-page-content button {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  width: 7.5vw;
+  height: 4vh;
+  background: url("./assets/homepage/login-button.png") center / cover no-repeat;
+}
