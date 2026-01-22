@@ -1,0 +1,54 @@
+.login-prompt-background {
+  width: 70vw;
+  height: 80vh;
+  background: url("./assets/homepage/login-login.png") center / cover no-repeat;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-prompt-container {
+  width: 30vw;
+  height: 25vh;
+  border-radius: 10%;
+  position: relative;
+}
+
+.login-prompt-container .login-X-button {
+  position: absolute;
+  right: 0.39vw;
+  top: -4.4vh;
+  width: 6vh;
+  height: 6vh;
+  display: flex; /* ✅ centers both directions */
+  align-items: center;
+  justify-content: center;
+  background-color: red;
+  font-size: 1.2vw;
+  border-radius: 10%;
+}
+
+.login-prompt-container form {
+  margin-top: 1.3vw;
+  display: flex;
+  flex-direction: column;
+  font-size: 1.5vw;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5vw;
+}
+
+.login-prompt-container form input {
+  width: 15vw;
+  height: 3vh;
+  border-radius: 5%;
+  border: none;
+  padding: 0.5vw;
+  font-size: 1.2vw;
+}
+
+.login-prompt-container form .submit-button {
+  margin-top: 2vw;
+}

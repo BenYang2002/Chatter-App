@@ -1,15 +1,16 @@
 import { useState } from "react";
 import "./Homepage.css";
-import HomeCard from "./HomeCard";
-
+import HomeCard from "./HomeCard.jsx";
+import Login from "./Login.jsx";
 function App() {
-  const [count, setCount] = useState(0);
+  const [isLoginOpen, setLogin] = useState(false);
 
   return (
     <>
       <div className="hm-background-SVG"></div>
       <div className="hm-page">
-        <HomeCard />
+        {!isLoginOpen && <HomeCard setLogin={setLogin} />}
+        {isLoginOpen && <Login setLogin={setLogin} />}
       </div>
     </>
   );
