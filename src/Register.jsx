@@ -1,6 +1,8 @@
 import "./Register.css";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 function Register({ setRegister }) {
+  const navigate = useNavigate();
   const [username, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,6 +21,9 @@ function Register({ setRegister }) {
     <>
       <div className="register-prompt-background">
         <div className="register-prompt-container">
+          <button className="register-X-button" onClick={() => navigate("/")}>
+            X
+          </button>
           <form>
             <input
               type="text"

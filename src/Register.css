@@ -53,3 +53,21 @@ input {
 .submit-button {
   margin-top: 1vh;
 }
+
+.register-prompt-container {
+  position: relative;
+}
+
+.register-prompt-container .register-X-button {
+  position: absolute;
+  right: 0;
+  top: -2.4vh;
+  width: 6vh;
+  height: 6vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: red;
+  font-size: 1.2vw;
+  border-radius: 10%;
+}
