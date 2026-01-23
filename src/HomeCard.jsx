@@ -1,5 +1,7 @@
 import "./HomeCard.css";
+import { useNavigate } from "react-router-dom";
 function HomeCard({ setLogin }) {
+  const navigate = useNavigate();
   return (
     <>
       <div className="hm-square">
@@ -10,12 +12,19 @@ function HomeCard({ setLogin }) {
           <p>A cat lover pixel style chat app</p>
           <button
             onClick={() => {
-              setLogin(true);
+              navigate("/login");
             }}
           >
             Log in
           </button>
-          <p>New user? Create an account</p>
+          <p
+            className="create-account"
+            onClick={() => {
+              navigate("/register");
+            }}
+          >
+            New user? Create an account
+          </p>
         </div>
       </div>
       ;

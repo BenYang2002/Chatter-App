@@ -1,6 +1,8 @@
 import { useState } from "react";
 import "./Login.css";
+import { useNavigate } from "react-router-dom";
 function Login({ setLogin }) {
+  const navigate = useNavigate();
   function handleSubmit(e) {
     e.preventDefault();
     console.log(name, email);
@@ -12,7 +14,7 @@ function Login({ setLogin }) {
     <>
       <div className="login-prompt-background">
         <div className="login-prompt-container">
-          <button className="login-X-button" onClick={() => setLogin(false)}>
+          <button className="login-X-button" onClick={() => navigate("/")}>
             X
           </button>
           <form onSubmit={handleSubmit}>

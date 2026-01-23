@@ -18,7 +18,7 @@
 .hm-page-content {
   position: relative;
   z-index: 1;
-  color: black;
+  color: white;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -37,4 +37,9 @@
   width: 7.5vw;
   height: 4vh;
   background: url("./assets/homepage/login-button.png") center / cover no-repeat;
+  color: white;
+}
+
+.create-account:hover {
+  text-decoration: underline;
 }
