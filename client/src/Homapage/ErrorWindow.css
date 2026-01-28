@@ -1,0 +1,26 @@
+.error-window-background {
+    position: fixed;
+    z-index: 1;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.error-window-container {
+    position: relative;
+    color: red;
+    width: 20vw;
+    height: 30vh;
+    font-size: 1.2vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    border-radius: 15%;
+    border: 2px solid grey;
+}
+
+button {
+    background-color: grey;
+}

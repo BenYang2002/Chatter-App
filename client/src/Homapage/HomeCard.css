@@ -36,7 +36,7 @@
   border: 0;
   width: 7.5vw;
   height: 4vh;
-  background: url("./assets/homepage/login-button.png") center / cover no-repeat;
+  background: url("src/assets/homepage/login-button.png") center / cover no-repeat;
   color: white;
 }
 

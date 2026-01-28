@@ -5,8 +5,6 @@ import Login from "./Login.jsx";
 import Register from "./Register.jsx";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 function App() {
-  const [isLoginOpen, setLogin] = useState(false);
-  const [IsRegisterOpen, setRegister] = useState(false);
 
   return (
     <>
@@ -14,11 +12,11 @@ function App() {
       <div className="hm-page">
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<HomeCard setLogin={setLogin} />} />
-            <Route path="/login" element={<Login setLogin={setLogin} />} />
+            <Route path="/" element={<HomeCard/>} />
+            <Route path="/login" element={<Login />} />
             <Route
               path="/register"
-              element={<Register setRegister={setRegister} />}
+              element={<Register />}
             />
           </Routes>
         </BrowserRouter>

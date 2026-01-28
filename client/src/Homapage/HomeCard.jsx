@@ -1,6 +1,6 @@
 import "./HomeCard.css";
 import { useNavigate } from "react-router-dom";
-function HomeCard({ setLogin }) {
+function HomeCard() {
   const navigate = useNavigate();
   return (
     <>

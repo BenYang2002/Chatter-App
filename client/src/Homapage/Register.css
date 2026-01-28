@@ -1,0 +1,177 @@
+.register-prompt-background {
+  position: relative;
+  width: 30vw;
+  height: 35vh;
+  top: 3vh;
+  background-color: grey;
+  border-radius: 10%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.register-prompt-container {
+  position: relative;
+}
+
+.register-prompt-password-cat {
+  width: 15vw;
+  height: 18vw;
+  position: absolute;
+  top: -20vw;
+  left: 25%;
+  background: url("src/assets/homepage/sad-cat.png") center / cover no-repeat;
+}
+
+.register-prompt-password-cat.mood-0 {
+  background: url("src/assets/homepage/sad-cat.png") center / cover no-repeat;
+}
+
+.register-prompt-password-cat.mood-1 {
+  background: url("src/assets/homepage/slightly-sad-cat.png") center / cover
+    no-repeat;
+}
+
+.register-prompt-password-cat.mood-2 {
+  background: url("src/assets/homepage/slightly-happy-cat.png") center / cover
+    no-repeat;
+}
+
+.register-prompt-password-cat.mood-3 {
+  background: url("src/assets/homepage/happy-cat.png") center / cover no-repeat;
+}
+
+.register-prompt-password-cat.mood-4 {
+  background: url("src/assets/homepage/super-happy-cat.png") center / cover
+    no-repeat;
+}
+
+.register-prompt-dialogbox {
+  position: absolute;
+  width: 18vw;
+  height: 15vw;
+  right: -25vw;
+  top: 1vw;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.register-prompt-dialogbox.visible {
+  opacity: 1;
+}
+
+.register-prompt-dialogbox-background {
+  position: absolute;
+  right: -30vw;
+  top: -10vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.register-prompt-dialogbox-background.visible {
+  opacity: 1;
+}
+
+.dialogbox-image {
+  width: 40vw;
+  height: 30vw;
+}
+
+.password-error {
+  color: red;
+  font-size: 1vw;
+  margin: 0;
+}
+
+input {
+  width: 15vw;
+  height: 3vh;
+  border-radius: 5%;
+  border: none;
+  padding: 0.5vw;
+  font-size: 1.2vw;
+}
+
+.register-prompt-container form {
+  width: 30vw;
+  height: 30vh;
+  border-radius: 10%;
+  position: relative;
+  flex-direction: column;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1vw;
+}
+
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper .password-error {
+  position: absolute;
+  top: 100%;
+  left: 0;
+}
+
+.error:nth-of-type(2) {
+  margin-top: 1vh;
+}
+
+.submit-button {
+  margin-top: 1vh;
+}
+
+.register-prompt-container {
+  position: relative;
+}
+
+.register-prompt-container .register-X-button {
+  position: absolute;
+  right: 0;
+  top: -2.4vh;
+  width: 6vh;
+  height: 6vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: red;
+  font-size: 1.2vw;
+  border-radius: 10%;
+}
+
+.register-submit-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  top: 0.5vh;
+}
+
+.register-submit-wrapper button {
+  width: 8vw;
+  height: 4vh;
+  border: 2px solid black;
+  margin: 0;
+  padding: 0;
+  border-radius: 10%;
+}
+
+.missing-fields-error {
+  position: absolute;
+  width: 10vw;
+  color: red;
+  font-size: 1vw;
+  margin: 0;
+  top: -0.75vw;
+}
+
+.password-requirements {
+  list-style: number;
+}
