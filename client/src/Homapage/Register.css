@@ -21,38 +21,47 @@
   position: absolute;
   top: -20vw;
   left: 25%;
-  background: url("src/assets/homepage/sad-cat.png") center / cover no-repeat;
+  background: url("src/assets/homepage/sad-orange-cat.png") center / cover
+    no-repeat;
+  transition: opacity 0.2s ease-in-out;
 }
 
 .register-prompt-password-cat.mood-0 {
-  background: url("src/assets/homepage/sad-cat.png") center / cover no-repeat;
+  background: url("src/assets/homepage/sad-orange-cat.png") center / cover
+    no-repeat;
 }
 
 .register-prompt-password-cat.mood-1 {
-  background: url("src/assets/homepage/slightly-sad-cat.png") center / cover
-    no-repeat;
+  background: url("src/assets/homepage/slightly-sad-orange-cat.png") center /
+    cover no-repeat;
 }
 
 .register-prompt-password-cat.mood-2 {
-  background: url("src/assets/homepage/slightly-happy-cat.png") center / cover
-    no-repeat;
+  background: url("src/assets/homepage/slightly-happy-orange-cat.png") center /
+    cover no-repeat;
 }
 
 .register-prompt-password-cat.mood-3 {
-  background: url("src/assets/homepage/happy-cat.png") center / cover no-repeat;
+  background: url("src/assets/homepage/happy-orange-cat.png") center / cover
+    no-repeat;
 }
 
 .register-prompt-password-cat.mood-4 {
-  background: url("src/assets/homepage/super-happy-cat.png") center / cover
-    no-repeat;
+  background: url("src/assets/homepage/super-happy-orange-cat.png") center /
+    cover no-repeat;
+}
+
+.register-prompt-password-cat.mood-5 {
+  background: url("src/assets/homepage/happy-burst-orange-cat.png") center /
+    cover no-repeat;
 }
 
 .register-prompt-dialogbox {
   position: absolute;
   width: 18vw;
   height: 15vw;
-  right: -25vw;
-  top: 1vw;
+  right: -20vw;
+  top: -33.5vh;
   opacity: 0;
   transition: opacity 0.2s ease;
 }
@@ -63,8 +72,8 @@
 
 .register-prompt-dialogbox-background {
   position: absolute;
-  right: -30vw;
-  top: -10vh;
+  right: -28vw;
+  top: -45vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -78,7 +87,7 @@
 }
 
 .dialogbox-image {
-  width: 40vw;
+  width: 45vw;
   height: 30vw;
 }
 
@@ -128,7 +137,13 @@ input {
 }
 
 .register-prompt-container {
+  width: 30vw;
+  height: 30vh;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .register-prompt-container .register-X-button {
@@ -163,15 +178,10 @@ input {
   border-radius: 10%;
 }
 
-.missing-fields-error {
-  position: absolute;
-  width: 10vw;
-  color: red;
-  font-size: 1vw;
-  margin: 0;
-  top: -0.75vw;
-}
-
 .password-requirements {
   list-style: number;
+}
+
+.cat-wrrapper {
+  position: relative;
 }

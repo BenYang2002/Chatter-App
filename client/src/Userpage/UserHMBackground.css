@@ -1,0 +1,24 @@
+.user-HM-background {
+  position: fixed;
+  inset: 0;
+  z-index: -100;
+  background-color: lightblue;
+  background-image:
+    url("src/assets/userpage/userpage-background.png"),
+    url("src/assets/userpage/userpage-background.png");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+  background-position:
+    0 0,
+    128px 128px;
+  pointer-events: none;
+}
+
+.user-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+}

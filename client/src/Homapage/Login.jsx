@@ -1,38 +1,71 @@
 import { useState } from "react";
 import "./Login.css";
 import { useNavigate } from "react-router-dom";
+import ErrorWindow from "./ErrorWindow.jsx";
+import SpinCat from "./SpinCat.jsx";
 function Login() {
   const navigate = useNavigate();
-  function handleSubmit(e) {
+  const [showError, SetShowError] = useState(false);
+  const [errorMessage, SetErrorMessage] = useState("");
+  const [showSpinCat, SetShowSpinCat] = useState(false);
+  const [email, SetEmail] = useState("");
+  const [password, SetPassword] = useState("");
+  async function handleSubmit(e) {
     e.preventDefault();
-    console.log(name, email);
+    if (!email || !password) {
+      SetErrorMessage("Please fill in all fields");
+      SetShowError(true);
+      return;
+    }
+    SetShowSpinCat(true);
+    const res = await fetch("api/auth/login", {
+      method: "POST",
+      headers: { "Content-type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    if (res.status === 200) {
+      navigate("/user");
+    } else {
+      SetShowSpinCat(false);
+      const data = await res.json();
+      SetErrorMessage(data.message);
+      SetShowError(true);
+    }
   }
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
 
   return (
     <>
       <div className="login-prompt-background">
         <div className="login-prompt-container">
+          {showSpinCat && <SpinCat />}
+          {showError && (
+            <ErrorWindow ErrorMessage={errorMessage} setError={SetShowError} />
+          )}
           <button className="login-X-button" onClick={() => navigate("/")}>
             X
           </button>
-          <form onSubmit={handleSubmit}>
-            <input
-              placeholder="Username"
-              onChange={(e) => setName(e.target.value)}
-              value={name}
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              onChange={(e) => setEmail(e.target.value)}
-              value={email}
-            />
-            <button className="submit-button" type="submit">
-              Continue
-            </button>
-          </form>
+          {!showSpinCat && (
+            <form onSubmit={handleSubmit}>
+              <input
+                placeholder="email"
+                onChange={(e) => SetEmail(e.target.value)}
+                value={email}
+              />
+              <input
+                type="password"
+                placeholder="Password"
+                onChange={(e) => SetPassword(e.target.value)}
+                value={password}
+              />
+              <button
+                className="submit-button"
+                type="submit"
+                onClick={handleSubmit}
+              >
+                Continue
+              </button>
+            </form>
+          )}
         </div>
       </div>
     </>

@@ -1,0 +1,8 @@
+.userPage-container {
+  width: 60vw;
+  aspect-ratio: 3/2;
+  display: grid;
+  grid-template-columns: 50px 2fr 5fr;
+  position: relative;
+  z-index: 0;
+}
