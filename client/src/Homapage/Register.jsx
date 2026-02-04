@@ -1,10 +1,9 @@
 import "./Register.css";
 import ErrorWindow from "./ErrorWindow";
-("./ErrorWindow.jsx");
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SpinCat from "./SpinCat";
-
+import userInfo from "../UserInfo.jsx";
 function Register() {
   const navigate = useNavigate();
   // user info states
@@ -69,13 +68,17 @@ function Register() {
       headers: { "Content-type": "application/json" },
       body: JSON.stringify({ username, email, password }),
     });
-    const data = await res.json();
-    if (res.status === 200) {
+
+    if (res.ok) {
+      userInfo.name = username;
+      userInfo.email = email;
       navigate("/user");
     } else {
+      const text = await res.text();
+      const data = text ? JSON.parse(text) : {};
       SetShowSpinCat(false);
       SetShowError(true);
-      SetErrorMessage(data.message);
+      SetErrorMessage(data.message || "Internal server error");
     }
   }
 

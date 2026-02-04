@@ -1,10 +1,12 @@
-import express from 'express';
-import { fileURLToPath } from 'url';
+import express from "express";
+import { fileURLToPath } from "url";
 import authRouter from "./routers/auth.routers.js";
-import path from 'path';
+import path from "path";
+import cookieParser from "cookie-parser";
 const app = express();
 const PORT = 3000;
 app.use(express.json());
+app.use(cookieParser());
 app.use("/api/auth", authRouter);
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
@@ -12,9 +14,9 @@ app.listen(PORT, () => {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-app.use(express.static(path.join(__dirname,'../client/dist')));
+app.use(express.static(path.join(__dirname, "../client/dist")));
 app.get(/.*/, (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+  res.sendFile(path.join(__dirname, "../client/dist/index.html"));
 });
 
 export default app;

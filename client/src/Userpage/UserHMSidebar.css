@@ -1,3 +1,45 @@
+:root {
+  --icon-size: 40px;
+}
 .sidebar {
   background-color: black;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+}
+
+.user-avatar {
+  width: 50px;
+  height: 50px;
+  background-color: white;
+  position: relative;
+  margin-top: 30px;
+}
+
+.chat-icon {
+  width: var(--icon-size);
+  height: var(--icon-size);
+  position: relative;
+  background-image: url("src/assets/userpage/contact-cat-icon.svg");
+  background-size: cover;
+  background-position: center;
+}
+
+.contact-icon {
+  width: 30px;
+  height: 40px;
+  position: relative;
+  background-image: url("src/assets/userpage/conversation-icon.svg");
+  background-size: cover;
+  background-position: center;
+}
+
+.setting-icon {
+  width: var(--icon-size);
+  height: var(--icon-size);
+  position: relative;
+  background-image: url("src/assets/userpage/gear-icon.png");
+  background-size: cover;
+  background-position: center;
 }

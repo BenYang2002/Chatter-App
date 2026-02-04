@@ -1,5 +1,19 @@
 import bcrypt from "bcrypt";
 import prisma from "../prisma.js";
+import { verifyUser } from "../services/auth.service.js";
+import {
+  createSession,
+  deleteSession,
+  updateSession,
+  getSession,
+} from "../services/session.service.js";
+
+const cookieOptions = {
+  httpOnly: true,
+  sameSite: "lax",
+  secure: false, // todo: change this before deploy
+};
+
 async function handleRegister(req, res) {
   const passwordHash = await bcrypt.hash(req.body.password, 12);
   try {
@@ -17,14 +31,22 @@ async function handleRegister(req, res) {
   }
 
   try {
-    await prisma.user.create({
-      data: {
-        name: req.body.username,
-        email: req.body.email,
-        password: passwordHash,
-      },
+    prisma.$transaction(async (tx) => {
+      const user = await prisma.user.create({
+        data: {
+          name: req.body.username,
+          email: req.body.email,
+          password: passwordHash,
+        },
+      });
+      await prisma.session.create({
+        data: {
+          userPK: user.id,
+          expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
+        },
+      });
+      res.status(200).send({ message: "Registration successful" });
     });
-    res.status(200).send({ message: "Registration successful" });
   } catch (err) {
     console.error("Error during user registration:", err);
     res.status(500).send({ message: "Internal server error" });
@@ -33,27 +55,39 @@ async function handleRegister(req, res) {
   return true;
 }
 
-async function handleLogin(req, res) {
-  const data = req.body;
-  const user = await prisma.user.findUnique({
-    where: {
-      email: data.email,
-    },
-  });
-  const inputPassword = data.password;
-  if (user) {
-    // not null
-    const isPasswordCorrect = await bcrypt.compare(
-      inputPassword,
-      user.password,
-    );
-    if (isPasswordCorrect) {
-      res.status(200).send({ message: `Welcome: ${user.name}` });
-    } else {
-      res.status(401).send({ message: "Incorrect password" });
-    }
+async function handleMe(req, res) {
+  if (!req.cookies) return;
+  const session = await getSession(req.cookies.sessionId);
+  if (session.expiresAt < Date.now()) {
+    await deleteSession(req.cookies.sessionId);
+    res.status(401).send({ message: "Unauthorized" });
   } else {
-    res.status(404).send({ message: "cannot find user" });
+    await updateSession(req.cookies.sessionId);
+    res.status(200).send({ message: "Authorized" });
+  }
+}
+
+async function handleLogin(req, res) {
+  const verified = await verifyUser(req);
+  if (!verified.verified) {
+    res.status(verified.status).json({ message: verified.message });
+    return;
+  } else {
+    // user is verified
+    try {
+      const userSession = await getSession(req);
+      if (userSession) {
+        updateSession(req);
+      } else {
+        const newSession = await createSession(req);
+        res.cookie("sessionId", newSession.sessionId, cookieOptions);
+        res.status(200).send({ message: "Login successful" });
+      }
+    } catch (err) {
+      console.error("Error getting session:", err);
+      res.status(500).send({ message: "Internal server error" });
+      return;
+    }
   }
 }
 

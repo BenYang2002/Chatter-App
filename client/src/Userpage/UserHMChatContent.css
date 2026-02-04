@@ -1,3 +1,49 @@
 .chat-content {
   background-color: white;
+  display: grid;
+  grid-template-rows: 60px 3fr 1fr;
+}
+
+.message-header {
+  border-bottom: 1px solid grey;
+}
+
+.message-content {
+  border-bottom: 1px solid grey;
+}
+
+.message-input {
+  display: grid;
+  grid-template-rows: 40px 3fr 1fr;
+}
+
+.message-input-tool {
+  display: flex;
+  border: 1px solid black;
+  align-items: center;
+}
+
+.emoji {
+  background-image: url("src/assets/userpage/chat-tool/emoji.png");
+  background-size: cover;
+  background-position: center;
+  width: 30px;
+  height: 30px;
+  margin-left: 10px;
+}
+
+.file {
+  background-image: url("src/assets/userpage/chat-tool/file.png");
+  background-size: cover;
+  background-position: center;
+  width: 35px;
+  height: 35px;
+}
+
+.history {
+  background-image: url("src/assets/userpage/chat-tool/history.png");
+  background-size: cover;
+  background-position: center;
+  width: 40px;
+  height: 40px;
 }

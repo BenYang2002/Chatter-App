@@ -1,0 +1,3 @@
+function createId() {
+  res = fetch();
+}

@@ -2,6 +2,7 @@ import "./UserHMContact.css";
 import { useState } from "react";
 function Contact() {
   const [displayClose, SetDisplayClose] = useState(false);
+  const [searchText, SetSearchText] = useState("");
   return (
     <>
       <div className="contacts">
@@ -14,9 +15,23 @@ function Contact() {
                 placeholder="Search"
                 onClick={() => SetDisplayClose(true)}
                 onBlur={() => SetDisplayClose(false)}
+                onChange={(e) => {
+                  SetSearchText(e.target.value);
+                }}
+                value={searchText}
               />
             </div>
-            {displayClose && <div className="close">❌</div>}
+            {displayClose && (
+              <div
+                onMouseDown={(e) => e.preventDefault()}
+                className="close"
+                onClick={() => {
+                  SetSearchText("");
+                }}
+              >
+                ❌
+              </div>
+            )}
           </div>
         </div>
         <div className="contact-list">
