@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Navigate, Outlet } from "react-router-dom";
 function ProtectedRoute() {
-  console.log("ProtectedRoute");
   const [auth, setAuth] = useState(null);
   useEffect(() => {
     const auth = () => {
@@ -10,10 +9,8 @@ function ProtectedRoute() {
         credentials: "include",
       }).then((res) => {
         if (res.status === 200) {
-          console.log(res);
           setAuth(true);
         } else {
-          console.log(res);
           setAuth(false);
         }
       });

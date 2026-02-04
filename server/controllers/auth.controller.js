@@ -56,7 +56,6 @@ async function handleRegister(req, res) {
 }
 
 async function handleMe(req, res) {
-  console.log("triggered");
   if (!req.cookies) {
     res.status(404).send({ message: "Unauthorized" });
   }

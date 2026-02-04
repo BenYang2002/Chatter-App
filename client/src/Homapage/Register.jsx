@@ -62,7 +62,6 @@ function Register() {
       return;
     }
     SetShowSpinCat(true);
-    console.log(username, email, password);
     const res = await fetch("api/auth/register", {
       method: "post",
       headers: { "Content-type": "application/json" },
