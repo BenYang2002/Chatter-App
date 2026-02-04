@@ -17,6 +17,7 @@ function Login() {
       SetShowError(true);
       return;
     }
+    console.log("here");
     SetShowSpinCat(true);
     const res = await fetch("api/auth/login", {
       method: "POST",
@@ -24,6 +25,7 @@ function Login() {
       body: JSON.stringify({ email, password }),
     });
     if (res.status === 200) {
+      SetShowSpinCat(false);
       navigate("/user");
     } else {
       SetShowSpinCat(false);

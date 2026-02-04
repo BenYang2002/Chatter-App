@@ -8,6 +8,9 @@ const PORT = 3000;
 app.use(express.json());
 app.use(cookieParser());
 app.use("/api/auth", authRouter);
+app.get("/api/ping", (req, res) => {
+  res.json({ ok: true, from: "express" });
+});
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });

@@ -56,9 +56,15 @@ async function handleRegister(req, res) {
 }
 
 async function handleMe(req, res) {
-  if (!req.cookies) return;
+  console.log("triggered");
+  if (!req.cookies) {
+    res.status(404).send({ message: "Unauthorized" });
+  }
   const session = await getSession(req.cookies.sessionId);
-  if (session.expiresAt < Date.now()) {
+  if (!session) {
+    res.status(404).send({ message: "Unauthorized" });
+    return;
+  } else if (session.expiresAt < Date.now()) {
     await deleteSession(req.cookies.sessionId);
     res.status(401).send({ message: "Unauthorized" });
   } else {
@@ -75,14 +81,25 @@ async function handleLogin(req, res) {
   } else {
     // user is verified
     try {
-      const userSession = await getSession(req);
-      if (userSession) {
-        updateSession(req);
+      const userInfo = await prisma.user.findUnique({
+        where: {
+          email: verified.user.email,
+        },
+      });
+      const session = await prisma.session.findFirst({
+        where: {
+          userPK: userInfo.id,
+        },
+      });
+      if (session) {
+        const sessionId = session.sessionId;
+        await updateSession(sessionId);
       } else {
-        const newSession = await createSession(req);
+        const newSession = await createSession(userInfo.id);
         res.cookie("sessionId", newSession.sessionId, cookieOptions);
-        res.status(200).send({ message: "Login successful" });
       }
+      res.status(200).send({ message: "Login successful" });
+      return;
     } catch (err) {
       console.error("Error getting session:", err);
       res.status(500).send({ message: "Internal server error" });
@@ -91,4 +108,4 @@ async function handleLogin(req, res) {
   }
 }
 
-export { handleRegister, handleLogin };
+export { handleRegister, handleLogin, handleMe };

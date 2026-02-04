@@ -5,6 +5,7 @@ import Register from "./Homapage/Register.jsx";
 import UserHMBackground from "./Userpage/UserHMBackground.jsx";
 //user page
 import UserHomePage from "./Userpage/UserHomePage.jsx";
+import ProtectedRoute from "./Auth/ProtectedRoute.jsx";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 function App() {
   return (
@@ -19,8 +20,10 @@ function App() {
             <Route path="/register" element={<Register />} />
           </Route>
           {/*Routes for user page after login/register*/}
-          <Route element={<UserHMBackground />}>
-            <Route path="/user" element={<UserHomePage />} />
+          <Route element={<ProtectedRoute />}>
+            <Route element={<UserHMBackground />}>
+              <Route path="/user" element={<UserHomePage />} />
+            </Route>
           </Route>
         </Routes>
       </BrowserRouter>

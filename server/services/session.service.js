@@ -1,3 +1,5 @@
+import prisma from "../prisma.js";
+
 async function createSession(userId) {
   const session = await prisma.session.create({
     data: {
@@ -26,5 +28,6 @@ async function getSession(sessionId) {
       sessionId: sessionId,
     },
   });
+  return session;
 }
 export { createSession, deleteSession, updateSession, getSession };

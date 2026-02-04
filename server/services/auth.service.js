@@ -1,3 +1,5 @@
+import prisma from "../prisma.js";
+import bcrypt from "bcrypt";
 async function verifyUser(req) {
   const returnValue = {
     verified: false,
@@ -15,6 +17,7 @@ async function verifyUser(req) {
   } catch (err) {
     returnValue.message = "Internal server error";
     returnValue.status = 500;
+    console.error(err);
     return returnValue;
   }
 
