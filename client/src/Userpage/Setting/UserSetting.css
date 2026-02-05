@@ -1,3 +1,6 @@
+.setting-display {
+  position: relative;
+}
 .userSetting-container {
   position: absolute;
   width: 50%;

@@ -1,0 +1,68 @@
+.setting-input-container {
+  width: 80%;
+  height: 50%;
+  position: absolute;
+  background-color: white;
+  border: 1px solid black;
+  top: 10%;
+  left: 10%;
+}
+
+.setting-input-UI {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.setting-confirm-UI {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.setting-input-close {
+  width: 30px;
+  height: 25px;
+  padding: 0;
+  border: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  background-color: white;
+  aspect-ratio: 1/1;
+  border-radius: 1%;
+}
+
+.display-userId {
+  white-space: nowrap; /* keep it one line */
+  overflow-x: auto; /* allow horizontal scroll */
+  padding: 0;
+  margin: 0;
+}
+
+.user-setting-input {
+  border: 1.5px solid rgb(106, 95, 95);
+}
+
+.setting-input-close:hover {
+  background-color: lightcoral;
+  color: white;
+}
+
+.setting-confirm-UI b {
+  color: red;
+  font-size: 14px;
+}
+
+.setting-confirm-UI p {
+  padding: 0;
+  margin: 0;
+}

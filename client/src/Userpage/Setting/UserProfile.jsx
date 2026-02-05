@@ -1,11 +1,15 @@
 import "./UserProfile.css";
 import { useState } from "react";
+import UserSettingInput from "./UserSettingInput";
 import userInfo from "../../UserInfo.jsx";
 function UserProfile() {
   const [userIdCreated, setUserIdCreated] = useState(false);
-
+  const [showUserInput, setShowUserInput] = useState(false);
   return (
     <>
+      {showUserInput && (
+        <UserSettingInput setShowUserInput={setShowUserInput} />
+      )}
       <div className="user-profile">
         <div className="user-profile-info">
           <div className="profile-avatar-container">
@@ -28,7 +32,13 @@ function UserProfile() {
         </div>
         <div className="modification-options">
           <div className="create-userid">
-            <p>Create User ID</p>
+            <p
+              onClick={() => {
+                setShowUserInput(true);
+              }}
+            >
+              Create User ID
+            </p>
           </div>
           <div className="change-name">
             <p>Change Name</p>

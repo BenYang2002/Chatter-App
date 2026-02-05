@@ -1,8 +1,10 @@
 import bcrypt from "bcrypt";
 import prisma from "../prisma.js";
-import { verifyUser } from "../services/auth.service.js";
+import { verifyUser, checkCookie } from "../services/auth.service.js";
+import { createUser, createUserTransaction } from "../services/user.service.js";
 import {
   createSession,
+  createSessionTransaction,
   deleteSession,
   updateSession,
   getSession,
@@ -15,7 +17,6 @@ const cookieOptions = {
 };
 
 async function handleRegister(req, res) {
-  const passwordHash = await bcrypt.hash(req.body.password, 12);
   try {
     const existingEmail = await prisma.user.findUnique({
       where: { email: req.body.email },
@@ -31,20 +32,19 @@ async function handleRegister(req, res) {
   }
 
   try {
-    prisma.$transaction(async (tx) => {
-      const user = await prisma.user.create({
-        data: {
-          name: req.body.username,
-          email: req.body.email,
-          password: passwordHash,
-        },
-      });
-      await prisma.session.create({
-        data: {
-          userPK: user.id,
-          expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
-        },
-      });
+    await prisma.$transaction(async (tx) => {
+      const user = await createUserTransaction(
+        tx,
+        req.body.username,
+        req.body.email,
+        req.body.password,
+      );
+      if (!user) {
+        res.status(500).send({ message: "Internal server error" });
+        return false;
+      }
+      const session = await createSessionTransaction(tx, user.id);
+      res.cookie("sessionId", session.sessionId, cookieOptions);
       res.status(200).send({ message: "Registration successful" });
     });
   } catch (err) {
@@ -56,16 +56,13 @@ async function handleRegister(req, res) {
 }
 
 async function handleMe(req, res) {
-  if (!req.cookies) {
-    res.status(404).send({ message: "Unauthorized" });
-  }
-  const session = await getSession(req.cookies.sessionId);
-  if (!session) {
-    res.status(404).send({ message: "Unauthorized" });
+  const cookieInfo = await checkCookie(req.cookies.sessionId);
+  if (!cookieInfo.valid) {
+    if (cookieInfo.expired) {
+      await deleteSession(req.cookies.sessionId);
+      res.status(401).send({ message: cookieInfo.message });
+    } else res.status(cookieInfo.status).send({ message: cookieInfo.message });
     return;
-  } else if (session.expiresAt < Date.now()) {
-    await deleteSession(req.cookies.sessionId);
-    res.status(401).send({ message: "Unauthorized" });
   } else {
     await updateSession(req.cookies.sessionId);
     res.status(200).send({ message: "Authorized" });

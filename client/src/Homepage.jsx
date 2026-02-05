@@ -6,6 +6,7 @@ import UserHMBackground from "./Userpage/UserHMBackground.jsx";
 //user page
 import UserHomePage from "./Userpage/UserHomePage.jsx";
 import ProtectedRoute from "./Auth/ProtectedRoute.jsx";
+import "./Homepage.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 function App() {
   return (

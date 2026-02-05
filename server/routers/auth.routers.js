@@ -6,7 +6,7 @@ import {
 import express from "express";
 const router = express.Router();
 router.post("/register", (req, res) => {
-  const result = handleRegister(req, res);
+  handleRegister(req, res);
 });
 
 router.post("/login", (req, res) => {

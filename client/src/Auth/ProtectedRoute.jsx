@@ -9,8 +9,10 @@ function ProtectedRoute() {
         credentials: "include",
       }).then((res) => {
         if (res.status === 200) {
+          console.log("logged in");
           setAuth(true);
         } else {
+          console.log("not logged in");
           setAuth(false);
         }
       });

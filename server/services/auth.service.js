@@ -1,5 +1,6 @@
 import prisma from "../prisma.js";
 import bcrypt from "bcrypt";
+import { getSession } from "./session.service.js";
 async function verifyUser(req) {
   const returnValue = {
     verified: false,
@@ -42,4 +43,26 @@ async function verifyUser(req) {
   }
 }
 
-export { verifyUser };
+async function checkCookie(sessionId) {
+  const cookieInfo = { valid: false, expired: false, message: "", status: 404 };
+  if (!sessionId) {
+    cookieInfo.message = "Cookie not found";
+    return cookieInfo;
+  }
+  const session = await getSession(sessionId);
+  if (!session) {
+    cookieInfo.message = "Session not found";
+    return cookieInfo;
+  }
+  if (session.expiresAt < Date.now()) {
+    cookieInfo.message = "Session expired";
+    cookieInfo.expired = true;
+    cookieInfo.status = 401;
+    return cookieInfo;
+  }
+  cookieInfo.valid = true;
+  cookieInfo.status = 200;
+  return cookieInfo;
+}
+
+export { verifyUser, checkCookie };
