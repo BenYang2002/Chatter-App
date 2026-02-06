@@ -6,6 +6,9 @@
   border: 1px solid black;
   top: 10%;
   left: 10%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .setting-input-UI {
@@ -65,4 +68,11 @@
 .setting-confirm-UI p {
   padding: 0;
   margin: 0;
+}
+
+.setting-message-UI {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }

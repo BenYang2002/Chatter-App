@@ -1,23 +1,33 @@
 import "./UserSettingInput.css";
 import { useState } from "react";
-function UserSettingInput({ setShowUserInput }) {
-  const [userId, setUserId] = useState("");
-  const [showInputUI, setShowInputUI] = useState(true);
-  const [showConfirmUI, setShowConfirmUI] = useState(false);
-  const [showMessageUI, setShowMessageUI] = useState(false);
-  const [message, setMessage] = useState("");
+function UserSettingInput({
+  showUserInput,
+  SetShowUserInput,
+  placeholderMSG,
+  inputType,
+}) {
+  const [inputValue, SetUserId] = useState("");
+  const [showInputUI, SetShowInputUI] = useState(true);
+  const [showConfirmUI, SetShowConfirmUI] = useState(false);
+  const [showMessageUI, SetShowMessageUI] = useState(false);
+  const [message, SetMessage] = useState("");
   async function handleSubmit() {
-    if (userId.length === 0) {
-      setMessage("Please input your UserId");
-      setShowMessageUI(true);
+    console.log(inputValue);
+    if (inputValue.length === 0) {
+      SetMessage(`Please input your ${inputType}`);
+      SetShowMessageUI(true);
       return;
     } else {
-      const res = await fetch("/api/user/createUserId", {
+      const res = await fetch(`/api/user/create${inputType}`, {
         credentials: "include",
         method: "POST",
         headers: { "Content-type": "application/json" },
-        body: JSON.stringify({ userId }),
+        body: JSON.stringify({ inputValue }),
       });
+      const data = await res.json();
+      SetMessage(data.message);
+      SetShowConfirmUI(false);
+      SetShowMessageUI(true);
     }
   }
   return (
@@ -28,22 +38,34 @@ function UserSettingInput({ setShowUserInput }) {
             <button
               className="setting-input-close"
               onClick={() => {
-                setShowUserInput(false);
+                SetShowUserInput(false);
               }}
             >
               X
             </button>
             <input
               type="text"
-              placeholder="Please input your UserId"
-              onChange={(e) => setUserId(e.target.value)}
-              value={userId}
+              placeholder={placeholderMSG}
+              onChange={(e) => SetUserId(e.target.value)}
+              value={inputValue}
               className="user-setting-input"
             />
+            {inputType === "Password" && (
+              <input
+                type="text"
+                placeholder="confirm password"
+                onChange={(e) => SetUserId(e.target.value)}
+                value={inputValue}
+                className="user-setting-input"
+              />
+            )}
+
             <button
               onClick={() => {
-                setShowInputUI(false);
-                setShowConfirmUI(true);
+                if (inputType === "UserId") {
+                  SetShowConfirmUI(true);
+                  SetShowInputUI(false);
+                } else handleSubmit();
               }}
             >
               Submit
@@ -55,8 +77,7 @@ function UserSettingInput({ setShowUserInput }) {
             <button
               className="setting-input-close"
               onClick={() => {
-                setShowConfirmUI(false);
-                setShowInputUI(true);
+                SetShowUserInput(false);
               }}
             >
               X
@@ -66,15 +87,14 @@ function UserSettingInput({ setShowUserInput }) {
               type="text"
               className="display-userId"
               onChange={(e) => {
-                setUserId(e.target.value);
+                SetUserId(e.target.value);
               }}
-              value={userId}
+              value={inputValue}
             />
             <b>Once being set, userId cannot be changed</b>
             <button
               onClick={() => {
-                setShowConfirmUI(false);
-                setShowMessageUI(true);
+                handleSubmit();
               }}
             >
               Confirm
@@ -86,8 +106,8 @@ function UserSettingInput({ setShowUserInput }) {
             <p>{message}</p>
             <button
               onClick={() => {
-                setShowMessageUI(false);
-                setShowUserInput(false);
+                SetShowMessageUI(false);
+                SetShowUserInput(false);
               }}
             >
               OK

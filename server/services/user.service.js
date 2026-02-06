@@ -28,14 +28,14 @@ async function createUserTransaction(db, username, email, password) {
 
 async function deleteUser(userPK) {
   if (!userPK) return null;
-  await prisma.user.delete({ where: { userPK: userPK } });
+  await prisma.user.delete({ where: { id: userPK } });
 }
 
 async function updateUserName(userPK, username) {
   if (!userPK || !username) return null;
   const user = await prisma.session.update({
     where: {
-      userPK: userPK,
+      id: userPK,
     },
     data: {
       name: username,
@@ -48,7 +48,7 @@ async function updateUserEmail(userPK, email) {
   if (!userPK || !email) return null;
   const user = await prisma.session.update({
     where: {
-      userPK: userPK,
+      id: userPK,
     },
     data: {
       email: email,
@@ -61,7 +61,7 @@ async function updateUserPassword(userPK, password) {
   if (!userPK || !password) return null;
   const user = await prisma.session.update({
     where: {
-      userPK: userPK,
+      id: userPK,
     },
     data: {
       password: password,
@@ -74,11 +74,27 @@ async function getUser(userPK) {
   if (!userPK) return null;
   const user = await prisma.user.findUnique({
     where: {
-      userPK: userPK,
+      id: userPK,
     },
   });
   return user;
 }
+
+async function createUserId(userId, userPK) {
+  if (!userId || !userPK) return false;
+  const duplicate = await prisma.user.findUnique({ where: { id: userId } });
+  if (duplicate) return false;
+  const user = await prisma.user.update({
+    where: {
+      id: userPK,
+    },
+    data: {
+      userId: userId,
+    },
+  });
+  return user;
+}
+
 export {
   createUser,
   createUserTransaction,
@@ -87,4 +103,5 @@ export {
   updateUserEmail,
   updateUserPassword,
   getUser,
+  createUserId,
 };

@@ -1,14 +1,21 @@
 import "./UserProfile.css";
 import { useState } from "react";
-import UserSettingInput from "./UserSettingInput";
+import UserSettingInput from "./UserSettingInput.jsx";
 import userInfo from "../../UserInfo.jsx";
 function UserProfile() {
   const [userIdCreated, setUserIdCreated] = useState(false);
-  const [showUserInput, setShowUserInput] = useState(false);
+  const [showUserInput, SetShowUserInput] = useState(false);
+  const [placeholderMSG, SetPlaceHolderMSG] = useState("");
+  const [inputType, SetInputType] = useState("");
   return (
     <>
       {showUserInput && (
-        <UserSettingInput setShowUserInput={setShowUserInput} />
+        <UserSettingInput
+          showUserInput={showUserInput}
+          SetShowUserInput={SetShowUserInput}
+          placeholderMSG={placeholderMSG}
+          inputType={inputType}
+        />
       )}
       <div className="user-profile">
         <div className="user-profile-info">
@@ -34,23 +41,57 @@ function UserProfile() {
           <div className="create-userid">
             <p
               onClick={() => {
-                setShowUserInput(true);
+                SetPlaceHolderMSG("create userId");
+                SetInputType("UserId");
+                SetShowUserInput(true);
               }}
             >
               Create User ID
             </p>
           </div>
           <div className="change-name">
-            <p>Change Name</p>
+            <p
+              onClick={() => {
+                SetPlaceHolderMSG("new username");
+                SetInputType("Name");
+                SetShowUserInput(true);
+              }}
+            >
+              Change Name
+            </p>
           </div>
           <div className="change-avatar">
-            <p>Change Avatar</p>
+            <p
+              onClick={() => {
+                SetPlaceHolderMSG("new avatar");
+                SetInputType("Avatar");
+                SetShowUserInput(true);
+              }}
+            >
+              Change Avatar
+            </p>
           </div>
           <div className="change-password">
-            <p>Change Password</p>
+            <p
+              onClick={() => {
+                SetPlaceHolderMSG("new password");
+                SetInputType("Password");
+                SetShowUserInput(true);
+              }}
+            >
+              Change Password
+            </p>
           </div>
           <div className="change-email">
-            <p>Change Email</p>
+            <p
+              onClick={() => {
+                SetPlaceHolderMSG("new email");
+                SetInputType("Email");
+                SetShowUserInput(true);
+              }}
+            >
+              Change Email
+            </p>
           </div>
         </div>
       </div>

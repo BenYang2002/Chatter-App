@@ -1,6 +1,10 @@
 import bcrypt from "bcrypt";
 import prisma from "../prisma.js";
-import { verifyUser, checkCookie } from "../services/auth.service.js";
+import {
+  verifyUser,
+  checkCookie,
+  handleInvalidCookie,
+} from "../services/auth.service.js";
 import { createUser, createUserTransaction } from "../services/user.service.js";
 import {
   createSession,
@@ -56,17 +60,23 @@ async function handleRegister(req, res) {
 }
 
 async function handleMe(req, res) {
-  const cookieInfo = await checkCookie(req.cookies.sessionId);
+  const cookieInfo = await checkCookie(req.cookies);
   if (!cookieInfo.valid) {
-    if (cookieInfo.expired) {
-      await deleteSession(req.cookies.sessionId);
-      res.status(401).send({ message: cookieInfo.message });
-    } else res.status(cookieInfo.status).send({ message: cookieInfo.message });
-    return;
+    await handleInvalidCookie(
+      cookieInfo,
+      req.cookies.sessionId ? req.cookies.sessionId : null,
+      res,
+    );
   } else {
-    await updateSession(req.cookies.sessionId);
-    res.status(200).send({ message: "Authorized" });
+    try {
+      await updateSession(req.cookies.sessionId);
+      res.status(200).send({ message: "Authorized" });
+    } catch (err) {
+      console.error("Error updating session:", err);
+      res.status(500).send({ message: "Internal server error" });
+    }
   }
+  return;
 }
 
 async function handleLogin(req, res) {
