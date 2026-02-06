@@ -3,6 +3,7 @@ import "./Login.css";
 import { useNavigate } from "react-router-dom";
 import ErrorWindow from "./ErrorWindow.jsx";
 import SpinCat from "./SpinCat.jsx";
+import { validateEmail } from "../Service/format.validate.js";
 function Login() {
   const navigate = useNavigate();
   const [showError, SetShowError] = useState(false);
@@ -17,6 +18,12 @@ function Login() {
       SetShowError(true);
       return;
     }
+    if (!validateEmail(email)) {
+      SetErrorMessage("Invalid email address");
+      SetShowError(true);
+      return;
+    }
+
     SetShowSpinCat(true);
     const res = await fetch("api/auth/login", {
       method: "POST",

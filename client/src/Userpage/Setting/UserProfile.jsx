@@ -74,7 +74,7 @@ function UserProfile() {
           <div className="change-password">
             <p
               onClick={() => {
-                SetPlaceHolderMSG("new password");
+                SetPlaceHolderMSG("input previous password");
                 SetInputType("Password");
                 SetShowUserInput(true);
               }}

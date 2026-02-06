@@ -33,7 +33,7 @@ async function deleteUser(userPK) {
 
 async function updateUserName(userPK, username) {
   if (!userPK || !username) return null;
-  const user = await prisma.session.update({
+  const user = await prisma.user.update({
     where: {
       id: userPK,
     },
@@ -46,7 +46,7 @@ async function updateUserName(userPK, username) {
 
 async function updateUserEmail(userPK, email) {
   if (!userPK || !email) return null;
-  const user = await prisma.session.update({
+  const user = await prisma.user.update({
     where: {
       id: userPK,
     },
@@ -59,12 +59,13 @@ async function updateUserEmail(userPK, email) {
 
 async function updateUserPassword(userPK, password) {
   if (!userPK || !password) return null;
-  const user = await prisma.session.update({
+  const passwordHash = await bcrypt.hash(password, 12);
+  const user = await prisma.user.update({
     where: {
       id: userPK,
     },
     data: {
-      password: password,
+      password: passwordHash,
     },
   });
   return user;

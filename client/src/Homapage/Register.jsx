@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SpinCat from "./SpinCat";
 import userInfo from "../UserInfo.jsx";
+import { validateEmail } from "../Service/format.validate.js";
 function Register() {
   const navigate = useNavigate();
   // user info states
@@ -58,6 +59,11 @@ function Register() {
     }
     if (Object.values(rules).filter(Boolean).length < 5) {
       SetErrorMessage("Password does not meet all requirements");
+      SetShowError(true);
+      return;
+    }
+    if (!validateEmail(email)) {
+      SetErrorMessage("Invalid email address");
       SetShowError(true);
       return;
     }
