@@ -46,7 +46,10 @@ async function verifyUser(req) {
 
 async function checkCookie(cookies) {
   const cookieInfo = { valid: false, expired: false, message: "", status: 404 };
-  if (cookies === undefined) return cookieInfo;
+  if (cookies === undefined || Object.keys(cookies).length === 0) {
+    cookieInfo.message = "Cookie not detected or Cookie is empty";
+    return cookieInfo;
+  }
   const sessionId = cookies.sessionId;
   if (!sessionId) {
     cookieInfo.message = "Cookie not found";

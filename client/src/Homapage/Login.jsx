@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import ErrorWindow from "./ErrorWindow.jsx";
 import SpinCat from "./SpinCat.jsx";
 import { validateEmail } from "../Service/format.validate.js";
+import UserProfile from "../Service/userProfile.js";
 function Login() {
   const navigate = useNavigate();
   const [showError, SetShowError] = useState(false);
@@ -11,6 +12,7 @@ function Login() {
   const [showSpinCat, SetShowSpinCat] = useState(false);
   const [email, SetEmail] = useState("");
   const [password, SetPassword] = useState("");
+  const { SetUserProfile } = UserProfile();
   async function handleSubmit(e) {
     e.preventDefault();
     if (!email || !password) {
@@ -31,6 +33,16 @@ function Login() {
       body: JSON.stringify({ email, password }),
     });
     if (res.status === 200) {
+      const data = await res.json();
+      SetUserProfile((prev) => ({
+        ...prev,
+        name: data.name,
+        email: data.email,
+        userId: data.userId,
+      }));
+      localStorage.setItem("name", data.name);
+      localStorage.setItem("email", data.email);
+      localStorage.setItem("userId", data.userId);
       SetShowSpinCat(false);
       navigate("/user");
     } else {

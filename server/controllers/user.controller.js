@@ -17,7 +17,6 @@ async function handleCreateUserId(req, res) {
     const user = await requireUser(req, res);
     const success = await createUserId(userId, user.id);
     if (success) {
-      console.log(success);
       res.status(200).send({ message: `UserId created: ${userId}` });
     } else {
       res.status(409).send({ message: "UserId already exists" });

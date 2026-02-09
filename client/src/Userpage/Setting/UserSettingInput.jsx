@@ -1,5 +1,5 @@
 import "./UserSettingInput.css";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   validateEmail,
   validatePassword,
@@ -17,7 +17,9 @@ function UserSettingInput({
   const [showMessageUI, SetShowMessageUI] = useState(false);
   const [message, SetMessage] = useState("");
   const [resetPassword, SetResetPassword] = useState(false);
-
+  const avatarPic = { avatar: {} };
+  const inputFile = useRef(null);
+  async function handleChangeAvatar() {}
   async function handleChangeName(routePath) {
     if (!confirmInput()) return;
     try {
@@ -69,7 +71,6 @@ function UserSettingInput({
     try {
       const res = await modifyHelper(routePath);
       const data = await res.json();
-      console.log(data);
       if (res.ok) {
         SetInputValue("");
         SetResetPassword(true);
@@ -131,6 +132,10 @@ function UserSettingInput({
     showMessageUIHelper();
   }
 
+  function setAvatar(avatarFile) {
+    avatarPic.avatar = avatarFile;
+  }
+
   async function handleSubmit() {
     const createUserIdPath = "/api/user/createUserId";
     const changeNamePath = "/api/user/changeName";
@@ -144,6 +149,7 @@ function UserSettingInput({
     else if (inputType === "Password")
       handleConfirmPassword(confirmPasswordPath);
     else if (inputType === "Name") handleChangeName(changeNamePath);
+    else if (inputType === "Avatar") handleChangeAvatar();
   }
   return (
     <>
@@ -158,13 +164,15 @@ function UserSettingInput({
             >
               X
             </button>
-            <input
-              type="text"
-              placeholder={resetPassword ? "new password" : placeholderMSG}
-              onChange={(e) => SetInputValue(e.target.value)}
-              value={inputValue}
-              className="user-setting-input"
-            />
+            {!(inputType === "Avatar") && (
+              <input
+                type="text"
+                placeholder={resetPassword ? "new password" : placeholderMSG}
+                onChange={(e) => SetInputValue(e.target.value)}
+                value={inputValue}
+                className="user-setting-input"
+              />
+            )}
             {inputType === "Password" && resetPassword && (
               <input
                 type="text"
@@ -173,6 +181,25 @@ function UserSettingInput({
                 value={confirmPassword}
                 className="user-setting-input"
               />
+            )}
+            {inputType === "Avatar" && (
+              <>
+                <p className="avatar-text">choose an avatar</p>
+                <div
+                  className="upload-box"
+                  onClick={() => inputFile.current.click()}
+                >
+                  +
+                </div>
+                <input
+                  type="file"
+                  style={{ display: "none" }}
+                  onChange={(e) => setAvatar(e.target.files[0])}
+                  className="user-setting-input"
+                  ref={inputFile}
+                  accept="image/png"
+                />
+              </>
             )}
 
             <button

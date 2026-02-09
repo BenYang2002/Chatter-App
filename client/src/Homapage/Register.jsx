@@ -1,9 +1,9 @@
 import "./Register.css";
 import ErrorWindow from "./ErrorWindow";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { data, useNavigate } from "react-router-dom";
 import SpinCat from "./SpinCat";
-import userInfo from "../UserInfo.jsx";
+import UserProfile from "../Service/userProfile.js";
 import { validateEmail } from "../Service/format.validate.js";
 function Register() {
   const navigate = useNavigate();
@@ -34,6 +34,8 @@ function Register() {
     number: /^(?=.*[0-9])/.test(password),
     special: /^(?=.*[^A-Za-z0-9])/.test(password),
   };
+
+  const { userProfile, SetUserProfile } = UserProfile();
 
   const displayRules = [
     { key: "length", label: "At least 8 characters" },
@@ -73,10 +75,15 @@ function Register() {
       headers: { "Content-type": "application/json" },
       body: JSON.stringify({ username, email, password }),
     });
-
     if (res.ok) {
-      userInfo.name = username;
-      userInfo.email = email;
+      SetUserProfile((prev) => ({
+        ...prev,
+        name: username,
+        email: email,
+      }));
+      const data = await res.json();
+      localStorage.setItem("name", username);
+      localStorage.setItem("email", email);
       navigate("/user");
     } else {
       const text = await res.text();

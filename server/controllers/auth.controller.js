@@ -49,7 +49,7 @@ async function handleRegister(req, res) {
       }
       const session = await createSessionTransaction(tx, user.id);
       res.cookie("sessionId", session.sessionId, cookieOptions);
-      res.status(200).send({ message: "Registration successful" });
+      res.status(200).json({ message: "Registration successful" });
     });
   } catch (err) {
     console.error("Error during user registration:", err);
@@ -100,11 +100,17 @@ async function handleLogin(req, res) {
       if (session) {
         const sessionId = session.sessionId;
         await updateSession(sessionId);
+        res.cookie("sessionId", sessionId, cookieOptions);
       } else {
         const newSession = await createSession(userInfo.id);
         res.cookie("sessionId", newSession.sessionId, cookieOptions);
       }
-      res.status(200).send({ message: "Login successful" });
+      res.status(200).json({
+        message: "Login successful",
+        userId: userInfo.userId,
+        name: userInfo.name,
+        email: userInfo.email,
+      });
       return;
     } catch (err) {
       console.error("Error getting session:", err);
