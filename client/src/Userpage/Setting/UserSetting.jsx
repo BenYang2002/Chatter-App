@@ -6,6 +6,8 @@ function UserSetting({
   avatarURL,
   SetUseDefaultAvatar,
   SetAvatarURL,
+  userProfile,
+  SetUserProfile,
 }) {
   return (
     <>
@@ -29,6 +31,8 @@ function UserSetting({
               avatarURL={avatarURL}
               SetUseDefaultAvatar={SetUseDefaultAvatar}
               SetAvatarURL={SetAvatarURL}
+              userProfile={userProfile}
+              SetUserProfile={SetUserProfile}
             />
           </div>
         </div>

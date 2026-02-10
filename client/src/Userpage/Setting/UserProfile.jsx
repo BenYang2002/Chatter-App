@@ -1,12 +1,13 @@
 import "./UserProfile.css";
 import { useState } from "react";
 import UserSettingInput from "./UserSettingInput.jsx";
-import userInfo from "../../UserInfo.jsx";
 function UserProfile({
   useDefaultAvatar,
   avatarURL,
   SetUseDefaultAvatar,
   SetAvatarURL,
+  userProfile,
+  SetUserProfile,
 }) {
   const [userIdCreated, setUserIdCreated] = useState(false);
   const [showUserInput, SetShowUserInput] = useState(false);
@@ -22,6 +23,8 @@ function UserProfile({
           inputType={inputType}
           SetUseDefaultAvatar={SetUseDefaultAvatar}
           SetAvatarURL={SetAvatarURL}
+          userProfile={userProfile}
+          SetUserProfile={SetUserProfile}
         />
       )}
       <div className="user-profile">
@@ -38,16 +41,15 @@ function UserProfile({
           </div>
           <div className="profile-name-container">
             <div className="profile-name">
-              <span>name: </span>
-              <span>{userInfo.name}</span>
+              <span>name: {userProfile.name ? userProfile.name : ""} </span>
             </div>
             <div className="profile-email">
-              <span>email: </span>
-              <span>{userInfo.email}</span>
+              <span>email: {userProfile.email ? userProfile.email : ""} </span>
             </div>
             <div className="profile-userid">
-              <span>userid: </span>
-              <span>{userInfo.userid}</span>
+              <span>
+                user ID: {userProfile.userId ? userProfile.userId : ""}
+              </span>
             </div>
           </div>
         </div>

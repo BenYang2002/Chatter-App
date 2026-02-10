@@ -3,9 +3,8 @@ import ErrorWindow from "./ErrorWindow";
 import { useState } from "react";
 import { data, useNavigate } from "react-router-dom";
 import SpinCat from "./SpinCat";
-import UserProfile from "../Service/userProfile.js";
 import { validateEmail } from "../Service/format.validate.js";
-function Register() {
+function Register({ userProfile, SetUserProfile }) {
   const navigate = useNavigate();
   // user info states
   const [username, SetName] = useState("");
@@ -34,9 +33,6 @@ function Register() {
     number: /^(?=.*[0-9])/.test(password),
     special: /^(?=.*[^A-Za-z0-9])/.test(password),
   };
-
-  const { userProfile, SetUserProfile } = UserProfile();
-
   const displayRules = [
     { key: "length", label: "At least 8 characters" },
     { key: "uppercase", label: "At least one uppercase letter" },

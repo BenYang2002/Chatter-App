@@ -5,7 +5,6 @@ import {
   validatePassword,
 } from "../../Service/format.validate.js";
 import { saveProfilePic } from "../../Service/indexDB.js";
-import UserProfile from "../../Service/userProfile.js";
 function UserSettingInput({
   showUserInput,
   SetShowUserInput,
@@ -13,6 +12,8 @@ function UserSettingInput({
   inputType,
   SetUseDefaultAvatar,
   SetAvatarURL,
+  userProfile,
+  SetUserProfile,
 }) {
   const [inputValue, SetInputValue] = useState("");
   const [confirmPassword, SetConfirmPassword] = useState("");
@@ -21,7 +22,6 @@ function UserSettingInput({
   const [showMessageUI, SetShowMessageUI] = useState(false);
   const [message, SetMessage] = useState("");
   const [resetPassword, SetResetPassword] = useState(false);
-  const { userProfile } = UserProfile();
   const [chooseAvatar, SetChooseAvatar] = useState(false);
   const [fileName, SetFileName] = useState("avatar.png");
   const [avatarPic, SetAvatarPic] = useState(null);
@@ -32,6 +32,7 @@ function UserSettingInput({
     if (!confirmInput()) return;
     try {
       modifyADisplay(routePath);
+      SetUserProfile((prev) => ({ ...prev, name: inputValue }));
     } catch (err) {
       SetMessage(err.message);
       showMessageUIHelper();
@@ -46,6 +47,7 @@ function UserSettingInput({
     }
     try {
       modifyADisplay(routePath);
+      SetUserProfile((prev) => ({ ...prev, email: inputValue }));
     } catch (err) {
       SetMessage(err.message);
       showMessageUIHelper();
@@ -116,6 +118,7 @@ function UserSettingInput({
     if (!confirmInput()) return;
     try {
       modifyADisplay(routePath);
+      SetUserProfile((prev) => ({ ...prev, userId: inputValue }));
     } catch (err) {
       SetMessage(err.message);
       showMessageUIHelper();

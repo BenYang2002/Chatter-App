@@ -8,7 +8,26 @@ import UserHomePage from "./Userpage/UserHomePage.jsx";
 import ProtectedRoute from "./Auth/ProtectedRoute.jsx";
 import "./Homepage.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { useState } from "react";
 function App() {
+  const [userProfile, SetUserProfile] = useState(() => {
+    const getAvatarKey = localStorage.getItem("avatarKey");
+    const getName = localStorage.getItem("name");
+    const getEmail = localStorage.getItem("email");
+    const getUserId = localStorage.getItem("userId");
+
+    const avatarKey = getAvatarKey ? getAvatarKey : null;
+    const name = getName ? getName : null;
+    const email = getEmail ? getEmail : null;
+    const userId = getUserId && getUserId !== "null" ? getUserId : null;
+
+    return {
+      avatarKey: avatarKey,
+      name: name,
+      email: email,
+      userId: userId,
+    };
+  });
   return (
     <>
       <BrowserRouter>
@@ -17,13 +36,32 @@ function App() {
           {/* Routes for register and login page*/}
           <Route element={<HomepageBackground />}>
             <Route path="/" element={<HomeCard />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+            <Route
+              path="/login"
+              element={<Login SetUserProfile={SetUserProfile} />}
+            />
+            <Route
+              path="/register"
+              element={
+                <Register
+                  userProfile={userProfile}
+                  SetUserProfile={SetUserProfile}
+                />
+              }
+            />
           </Route>
           {/*Routes for user page after login/register*/}
           <Route element={<ProtectedRoute />}>
             <Route element={<UserHMBackground />}>
-              <Route path="/user" element={<UserHomePage />} />
+              <Route
+                path="/user"
+                element={
+                  <UserHomePage
+                    userProfile={userProfile}
+                    SetUserProfile={SetUserProfile}
+                  />
+                }
+              />
             </Route>
           </Route>
         </Routes>

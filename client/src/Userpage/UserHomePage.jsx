@@ -4,7 +4,7 @@ import UserHMContact from "./UserHMContact";
 import UserHMSidebar from "./UserHMSidebar";
 import UserSetting from "./Setting/UserSetting";
 import { useState } from "react";
-function UserHomePage() {
+function UserHomePage({ userProfile, SetUserProfile }) {
   const [displaySetting, SetDisplaySetting] = useState(false);
   const [avatarURL, SetAvatarURL] = useState("");
   const [useDefaultAvatar, SetUseDefaultAvatar] = useState(true);
@@ -18,6 +18,8 @@ function UserHomePage() {
             avatarURL={avatarURL}
             SetAvatarURL={SetAvatarURL}
             SetUseDefaultAvatar={SetUseDefaultAvatar}
+            userProfile={userProfile}
+            SetUserProfile={SetUserProfile}
           />
         )}
         <div className="userPage-chat-container">
