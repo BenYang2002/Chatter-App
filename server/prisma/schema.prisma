@@ -20,6 +20,7 @@ model User {
   password  String
   createdAt DateTime @default(now())
   sessions  Session[]
+  avatarKey String? @unique
 }
 
 model Session {

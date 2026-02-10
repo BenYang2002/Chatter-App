@@ -76,7 +76,7 @@ function UserSettingInput({
     }
   }
 
-  async function handleChangeAvatar() {
+  async function handleChangeAvatar(routePath) {
     if (avatarPic === null) {
       SetMessage("please choose avatar");
       showMessageUIHelper();
@@ -87,12 +87,52 @@ function UserSettingInput({
     if (url !== null) {
       URL.revokeObjectURL(url);
     }
-    const newURL = URL.createObjectURL(avatarPic);
-    SetUrl(newURL);
-    SetAvatarURL(newURL);
-    SetUseDefaultAvatar(false);
-    SetMessage("Avatar changed successfully");
-    showMessageUIHelper();
+    try {
+      const res = await fetch(routePath, {
+        credentials: "include",
+        method: "POST",
+        headers: { "Content-type": "application/json" },
+        body: JSON.stringify({
+          size: avatarPic.size,
+          contentType: avatarPic.type,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        SetInputValue(data.key);
+        const uploadUrl = data.signedUrl;
+        const upLoadRes = await fetch(uploadUrl, {
+          method: "PUT",
+          headers: { "Content-type": avatarPic.type },
+          body: avatarPic,
+        });
+        if (!upLoadRes.ok) {
+          SetMessage("Failed to upload avatar to cloud");
+          showMessageUIHelper();
+        }
+        const saveRoute = "/api/user/saveAvatar";
+        const saveKeyRes = await fetch(saveRoute, {
+          credentials: "include",
+          method: "POST",
+          headers: { "Content-type": "application/json" },
+          body: JSON.stringify({
+            inputValue: key,
+          }),
+        });
+        const newURL = URL.createObjectURL(avatarPic);
+        SetUrl(newURL);
+        SetAvatarURL(newURL);
+        SetUseDefaultAvatar(false);
+        SetMessage("Avatar changed successfully");
+        showMessageUIHelper();
+      } else {
+        SetMessage(data.message);
+        showMessageUIHelper();
+      }
+    } catch (err) {
+      SetMessage(err.message);
+      showMessageUIHelper();
+    }
   }
 
   async function handleConfirmPassword(routePath) {
@@ -132,6 +172,7 @@ function UserSettingInput({
       SetShowConfirmUI(false);
       return false;
     }
+    handleSubmit;
     return true;
   }
 
@@ -229,7 +270,7 @@ function UserSettingInput({
                   }}
                   className="user-setting-input"
                   ref={inputFile}
-                  accept="image/png"
+                  accept=".png,.jpg,.jpeg"
                 />
               </>
             )}
