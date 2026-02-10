@@ -1,5 +1,5 @@
-import { db } from "idb";
-const dbPromise = db("chatter-db", 1, {
+import { openDB } from "idb";
+const dbPromise = openDB("chatter-db", 1, {
   upgrade(db) {
     if (!db.objectStoreNames.contains("profile-pictures")) {
       db.createObjectStore("profile-pictures");

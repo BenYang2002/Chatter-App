@@ -2,7 +2,12 @@ import "./UserProfile.css";
 import { useState } from "react";
 import UserSettingInput from "./UserSettingInput.jsx";
 import userInfo from "../../UserInfo.jsx";
-function UserProfile() {
+function UserProfile({
+  useDefaultAvatar,
+  avatarURL,
+  SetUseDefaultAvatar,
+  SetAvatarURL,
+}) {
   const [userIdCreated, setUserIdCreated] = useState(false);
   const [showUserInput, SetShowUserInput] = useState(false);
   const [placeholderMSG, SetPlaceHolderMSG] = useState("");
@@ -15,12 +20,21 @@ function UserProfile() {
           SetShowUserInput={SetShowUserInput}
           placeholderMSG={placeholderMSG}
           inputType={inputType}
+          SetUseDefaultAvatar={SetUseDefaultAvatar}
+          SetAvatarURL={SetAvatarURL}
         />
       )}
       <div className="user-profile">
         <div className="user-profile-info">
           <div className="profile-avatar-container">
-            <div className="profile-avatar"></div>
+            <div
+              className="profile-avatar"
+              style={{
+                backgroundImage: useDefaultAvatar
+                  ? 'url("src/assets/userpage/profile-default-avatar.png")'
+                  : `url(${avatarURL})`,
+              }}
+            ></div>
           </div>
           <div className="profile-name-container">
             <div className="profile-name">

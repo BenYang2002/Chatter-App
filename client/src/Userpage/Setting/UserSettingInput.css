@@ -78,14 +78,24 @@
 }
 
 .upload-box {
-  width: 60px;
+  width: 70%;
   height: 60px;
   border: 1px solid grey;
   background-color: lightgrey;
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.upload-box .before-choose {
   font-size: 20px;
+}
+
+.upload-box .after-choose {
+  font-size: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .avatar-text {

@@ -4,11 +4,15 @@ import {
   validateEmail,
   validatePassword,
 } from "../../Service/format.validate.js";
+import { saveProfilePic } from "../../Service/indexDB.js";
+import UserProfile from "../../Service/userProfile.js";
 function UserSettingInput({
   showUserInput,
   SetShowUserInput,
   placeholderMSG,
   inputType,
+  SetUseDefaultAvatar,
+  SetAvatarURL,
 }) {
   const [inputValue, SetInputValue] = useState("");
   const [confirmPassword, SetConfirmPassword] = useState("");
@@ -17,7 +21,11 @@ function UserSettingInput({
   const [showMessageUI, SetShowMessageUI] = useState(false);
   const [message, SetMessage] = useState("");
   const [resetPassword, SetResetPassword] = useState(false);
-  const avatarPic = { avatar: {} };
+  const { userProfile } = UserProfile();
+  const [chooseAvatar, SetChooseAvatar] = useState(false);
+  const [fileName, SetFileName] = useState("avatar.png");
+  const [avatarPic, SetAvatarPic] = useState(null);
+  const [url, SetUrl] = useState(null);
   const inputFile = useRef(null);
   async function handleChangeAvatar() {}
   async function handleChangeName(routePath) {
@@ -64,6 +72,25 @@ function UserSettingInput({
       SetMessage(err.message);
       showMessageUIHelper();
     }
+  }
+
+  async function handleChangeAvatar() {
+    if (avatarPic === null) {
+      SetMessage("please choose avatar");
+      showMessageUIHelper();
+      return;
+    }
+    await saveProfilePic(userProfile.email, inputFile.current.files[0]);
+    SetUseDefaultAvatar(false);
+    if (url !== null) {
+      URL.revokeObjectURL(url);
+    }
+    const newURL = URL.createObjectURL(avatarPic);
+    SetUrl(newURL);
+    SetAvatarURL(newURL);
+    SetUseDefaultAvatar(false);
+    SetMessage("Avatar changed successfully");
+    showMessageUIHelper();
   }
 
   async function handleConfirmPassword(routePath) {
@@ -132,16 +159,13 @@ function UserSettingInput({
     showMessageUIHelper();
   }
 
-  function setAvatar(avatarFile) {
-    avatarPic.avatar = avatarFile;
-  }
-
   async function handleSubmit() {
     const createUserIdPath = "/api/user/createUserId";
     const changeNamePath = "/api/user/changeName";
     const changeEmailPath = "/api/user/changeEmail";
     const changePasswordPath = "/api/user/changePassword";
     const confirmPasswordPath = "/api/user/confirmPassword";
+    const changeAvatarPath = "/api/user/changeAvatar";
     if (inputType === "UserId") handleCreateUserId(createUserIdPath);
     else if (inputType === "Email") handleChangeEmail(changeEmailPath);
     else if (inputType === "Password" && resetPassword)
@@ -149,7 +173,7 @@ function UserSettingInput({
     else if (inputType === "Password")
       handleConfirmPassword(confirmPasswordPath);
     else if (inputType === "Name") handleChangeName(changeNamePath);
-    else if (inputType === "Avatar") handleChangeAvatar();
+    else if (inputType === "Avatar") handleChangeAvatar(changeAvatarPath);
   }
   return (
     <>
@@ -189,12 +213,17 @@ function UserSettingInput({
                   className="upload-box"
                   onClick={() => inputFile.current.click()}
                 >
-                  +
+                  {!chooseAvatar && <p className="before-choose">+</p>}
+                  {chooseAvatar && <p className="after-choose">{fileName}</p>}
                 </div>
                 <input
                   type="file"
                   style={{ display: "none" }}
-                  onChange={(e) => setAvatar(e.target.files[0])}
+                  onChange={(e) => {
+                    SetFileName(e.target.files[0].name);
+                    SetAvatarPic(e.target.files[0]);
+                    SetChooseAvatar(true);
+                  }}
                   className="user-setting-input"
                   ref={inputFile}
                   accept="image/png"
