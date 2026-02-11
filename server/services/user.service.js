@@ -96,19 +96,6 @@ async function createUserId(userId, userPK) {
   return user;
 }
 
-async function updateAvatarKey(userPK, key) {
-  if (!userPK || !key) return null;
-  const user = await prisma.user.update({
-    where: {
-      id: userPK,
-    },
-    data: {
-      avatarKey: key,
-    },
-  });
-  return user;
-}
-
 export {
   createUser,
   createUserTransaction,
@@ -118,5 +105,4 @@ export {
   updateUserPassword,
   getUser,
   createUserId,
-  updateAvatarKey,
 };

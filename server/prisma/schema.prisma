@@ -14,13 +14,13 @@ datasource db {
 
 model User {
   id        String     @id @default(uuid())
-  email     String   @unique
+  email     String    @unique
   userId    String?   @unique
   name      String
   password  String
   createdAt DateTime @default(now())
   sessions  Session[]
-  avatarKey String? @unique
+  avatar    Avatar?
 }
 
 model Session {
@@ -28,5 +28,12 @@ model Session {
   userPK    String
   user      User       @relation(fields: [userPK], references: [id], onDelete: Cascade)
   expiresAt DateTime
+  createdAt DateTime   @default(now())
+}
+
+model Avatar {
+  user      User       @relation(fields: [userPK], references: [id], onDelete: Cascade)
+  userPK    String     @unique
+  key       String     @unique
   createdAt DateTime   @default(now())
 }

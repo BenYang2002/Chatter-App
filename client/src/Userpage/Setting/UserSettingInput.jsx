@@ -99,7 +99,6 @@ function UserSettingInput({
       });
       const data = await res.json();
       if (res.ok) {
-        SetInputValue(data.key);
         const uploadUrl = data.signedUrl;
         const upLoadRes = await fetch(uploadUrl, {
           method: "PUT",
@@ -116,7 +115,7 @@ function UserSettingInput({
           method: "POST",
           headers: { "Content-type": "application/json" },
           body: JSON.stringify({
-            inputValue: key,
+            inputValue: data.key,
           }),
         });
         const newURL = URL.createObjectURL(avatarPic);

@@ -6,12 +6,16 @@ import {
   updateUserName,
   updateUserEmail,
   updateUserPassword,
-  updateAvatarKey,
 } from "../services/user.service.js";
 import requireUser from "./helpers/requireUser.js";
 import bcrypt from "bcrypt";
 import requireInputValue from "./helpers/requireInputValue.js";
 import getPresignedUrl from "../services/presignUrl.js";
+import {
+  createAvatarKey,
+  getAvatarKey,
+  updateAvatarKey,
+} from "../services/avatar.service.js";
 async function handleCreateUserId(req, res) {
   const userId = requireInputValue(req, res);
   if (!userId) {
@@ -132,12 +136,20 @@ async function handleSaveAvatar(req, res) {
   try {
     const user = await requireUser(req, res);
     if (!user) return;
-    const success = await updateAvatarKey(user.id, key);
+    const avatar = await getAvatarKey(user.id);
+    let success = null;
+    if (!avatar) {
+      // avatar has not been created yet
+      success = await createAvatarKey(user.id, key);
+    } else {
+      success = await updateAvatarKey(user.id, key);
+    }
     if (!success) {
       res.status(500).send({ message: "Internal server error" });
       return;
     }
-    res.status(200).send({ message: `avatar key updated` });
+    res.status(200).send({ message: `avatar key created` });
+    return;
   } catch (err) {
     console.error("Error changing avatar key:", err);
     res.status(500).send({ message: "Internal server error" });
