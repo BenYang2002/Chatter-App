@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import "./HomeCard.css";
 import { useNavigate } from "react-router-dom";
-function HomeCard() {
+function HomeCard({ SetUserProfile, userProfile }) {
   const navigate = useNavigate();
   useEffect(() => {
     const checkAuth = async () => {
@@ -9,7 +9,21 @@ function HomeCard() {
         method: "GET",
         credentials: "include",
       });
-      res.status === 200 ? navigate("/user") : null;
+      if (res.status === 200) {
+        const data = await res.json();
+        localStorage.setItem("name", data.user.name);
+        localStorage.setItem("email", data.user.email);
+        localStorage.setItem("userId", data.user.userId);
+        localStorage.setItem("userPK", data.user.userPK);
+        SetUserProfile((prev) => ({
+          ...prev,
+          name: data.user.name,
+          email: data.user.email,
+          userId: data.user.userId,
+          userPK: data.user.userPK,
+        }));
+        navigate("/user");
+      }
     }; //checkAuth
     checkAuth();
   }, []);

@@ -25,8 +25,11 @@ function UserHomePage({ userProfile, SetUserProfile }) {
         <div className="userPage-chat-container">
           <UserHMSidebar
             SetDisplaySetting={SetDisplaySetting}
+            SetUseDefaultAvatar={SetUseDefaultAvatar}
+            SetAvatarURL={SetAvatarURL}
             useDefaultAvatar={useDefaultAvatar}
             avatarURL={avatarURL}
+            userProfile={userProfile}
           />
           <UserHMContact />
           <UserHMChatContent />

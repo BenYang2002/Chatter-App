@@ -71,15 +71,18 @@ function Register({ userProfile, SetUserProfile }) {
       headers: { "Content-type": "application/json" },
       body: JSON.stringify({ username, email, password }),
     });
+    const data = await res.json();
     if (res.ok) {
       SetUserProfile((prev) => ({
         ...prev,
         name: username,
         email: email,
+        userPK: data.userPK,
       }));
       const data = await res.json();
       localStorage.setItem("name", username);
       localStorage.setItem("email", email);
+      localStorage.setItem("userPK", data.userPK);
       navigate("/user");
     } else {
       const text = await res.text();

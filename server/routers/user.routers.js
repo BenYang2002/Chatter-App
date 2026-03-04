@@ -6,6 +6,7 @@ import {
   handleConfirmPassword,
   handleChangeAvatar,
   handleSaveAvatar,
+  getProfilePicUrl,
 } from "../controllers/user.controller.js";
 import express from "express";
 const router = express.Router();
@@ -29,5 +30,8 @@ router.post("/changeAvatar", (req, res) => {
 });
 router.post("/saveAvatar", (req, res) => {
   handleSaveAvatar(req, res);
+});
+router.post("/profilePic", (req, res) => {
+  getProfilePicUrl(req, res);
 });
 export default router;

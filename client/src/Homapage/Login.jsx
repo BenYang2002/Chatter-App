@@ -32,15 +32,17 @@ function Login({ SetUserProfile }) {
     });
     if (res.status === 200) {
       const data = await res.json();
+      localStorage.setItem("name", data.name);
+      localStorage.setItem("email", data.email);
+      localStorage.setItem("userId", data.userId);
+      localStorage.setItem("userPK", data.userPK);
       SetUserProfile((prev) => ({
         ...prev,
         name: data.name ? data.name : null,
         email: data.email ? data.email : null,
         userId: data.userId ? data.userId : null,
+        userPK: data.userPK ? data.userPK : null,
       }));
-      localStorage.setItem("name", data.name);
-      localStorage.setItem("email", data.email);
-      localStorage.setItem("userId", data.userId);
       SetShowSpinCat(false);
       navigate("/user");
     } else {

@@ -1,15 +1,9 @@
 import crypto from "crypto";
-import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import s3 from "./s3client.js";
-async function getPresignedUrl(contentType, userPK) {
-  const extension =
-    contentType === "image/jpeg"
-      ? "jpg"
-      : contentType === "image/png"
-        ? "png"
-        : "jpeg";
-  const key = "avatars/" + userPK + "." + extension;
+async function getProfilePicPresignedUrl(contentType, userPK) {
+  const key = "avatars/" + userPK;
   const cmd = new PutObjectCommand({
     Bucket: process.env.AWS_S3_BUCKET,
     Key: key,
@@ -19,4 +13,14 @@ async function getPresignedUrl(contentType, userPK) {
   return { signedUrl, key };
 }
 
-export default getPresignedUrl;
+async function getProfilePicPresignedGetUrl(userPK) {
+  const key = "avatars/" + userPK;
+  const cmd = new GetObjectCommand({
+    Bucket: process.env.AWS_S3_BUCKET,
+    Key: key,
+  });
+  const signedUrl = await getSignedUrl(s3, cmd, { expiresIn: 60 });
+  return signedUrl;
+}
+
+export { getProfilePicPresignedUrl, getProfilePicPresignedGetUrl };

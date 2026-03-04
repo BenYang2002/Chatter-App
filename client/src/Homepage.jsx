@@ -15,17 +15,20 @@ function App() {
     const getName = localStorage.getItem("name");
     const getEmail = localStorage.getItem("email");
     const getUserId = localStorage.getItem("userId");
+    const getUserPK = localStorage.getItem("userPK");
 
     const avatarKey = getAvatarKey ? getAvatarKey : null;
     const name = getName ? getName : null;
     const email = getEmail ? getEmail : null;
     const userId = getUserId && getUserId !== "null" ? getUserId : null;
+    const userPK = getUserPK && getUserPK !== "null" ? getUserPK : null;
 
     return {
       avatarKey: avatarKey,
       name: name,
       email: email,
       userId: userId,
+      userPK: userPK,
     };
   });
   return (
@@ -35,7 +38,15 @@ function App() {
         <Routes>
           {/* Routes for register and login page*/}
           <Route element={<HomepageBackground />}>
-            <Route path="/" element={<HomeCard />} />
+            <Route
+              path="/"
+              element={
+                <HomeCard
+                  SetUserProfile={SetUserProfile}
+                  userProfile={userProfile}
+                />
+              }
+            />
             <Route
               path="/login"
               element={<Login SetUserProfile={SetUserProfile} />}

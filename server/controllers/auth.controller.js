@@ -5,7 +5,11 @@ import {
   checkCookie,
   handleInvalidCookie,
 } from "../services/auth.service.js";
-import { createUser, createUserTransaction } from "../services/user.service.js";
+import {
+  createUser,
+  createUserTransaction,
+  getUser,
+} from "../services/user.service.js";
 import {
   createSession,
   createSessionTransaction,
@@ -49,7 +53,11 @@ async function handleRegister(req, res) {
       }
       const session = await createSessionTransaction(tx, user.id);
       res.cookie("sessionId", session.sessionId, cookieOptions);
-      res.status(200).json({ message: "Registration successful" });
+      res.status(200).json({
+        message: "Registration successful",
+        userPK: user.id,
+        userId: user.userId,
+      });
     });
   } catch (err) {
     console.error("Error during user registration:", err);
@@ -61,6 +69,12 @@ async function handleRegister(req, res) {
 
 async function handleMe(req, res) {
   const cookieInfo = await checkCookie(req.cookies);
+  const session = await getSession(req.cookies.sessionId);
+  if (!session) {
+    res.status(401).send({ message: "Unauthorized" });
+    return;
+  }
+  const user = await getUser(session.userPK);
   if (!cookieInfo.valid) {
     await handleInvalidCookie(
       cookieInfo,
@@ -70,7 +84,13 @@ async function handleMe(req, res) {
   } else {
     try {
       await updateSession(req.cookies.sessionId);
-      res.status(200).send({ message: "Authorized" });
+      const userInfo = {
+        name: user.name,
+        email: user.email,
+        userId: user.userId,
+        userPK: user.id,
+      };
+      res.status(200).send({ message: "Authorized", user: userInfo });
     } catch (err) {
       console.error("Error updating session:", err);
       res.status(500).send({ message: "Internal server error" });
@@ -110,6 +130,7 @@ async function handleLogin(req, res) {
         userId: userInfo.userId,
         name: userInfo.name,
         email: userInfo.email,
+        userPK: userInfo.id,
       });
       return;
     } catch (err) {

@@ -10,7 +10,10 @@ import {
 import requireUser from "./helpers/requireUser.js";
 import bcrypt from "bcrypt";
 import requireInputValue from "./helpers/requireInputValue.js";
-import getPresignedUrl from "../services/presignUrl.js";
+import {
+  getProfilePicPresignedGetUrl,
+  getProfilePicPresignedUrl,
+} from "../services/presignUrl.js";
 import {
   createAvatarKey,
   getAvatarKey,
@@ -119,7 +122,7 @@ async function handleChangeAvatar(req, res) {
   try {
     const user = await requireUser(req, res);
     if (!user) return;
-    const { signedUrl, key } = await getPresignedUrl(
+    const { signedUrl, key } = await getProfilePicPresignedUrl(
       req.body.contentType,
       user.id,
     );
@@ -156,6 +159,20 @@ async function handleSaveAvatar(req, res) {
   }
 }
 
+async function getProfilePicUrl(req, res) {
+  const cookieInfo = await checkCookie(req.cookies);
+  if (cookieInfo.valid) {
+    const url = await getProfilePicPresignedGetUrl(req.body.userPK);
+    if (url) {
+      res.status(200).json({ url: url });
+    } else {
+      res.status(404).send({ message: "Profile pic does not exist" });
+    }
+  } else {
+    res.status(401).send({ message: "Unauthorized" });
+  }
+}
+
 export {
   handleCreateUserId,
   handleChangeName,
@@ -164,4 +181,5 @@ export {
   handleChangePassword,
   handleChangeAvatar,
   handleSaveAvatar,
+  getProfilePicUrl,
 };
