@@ -6,6 +6,7 @@ async function getCreationTime(userPK) {
       userPK: userPK,
     },
   });
+  if (!avatar) return null;
   return avatar.createdAt;
 }
 
@@ -37,6 +38,7 @@ async function updateAvatarKey(userPK, key) {
     },
     data: {
       key: key,
+      createdAt: new Date(),
     },
   });
   return avatar;

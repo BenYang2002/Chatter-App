@@ -4,7 +4,7 @@ import {
   validateEmail,
   validatePassword,
 } from "../../Service/format.validate.js";
-import { saveProfilePic } from "../../Service/indexDB.js";
+import { saveProfilePic, saveProfilePicTime } from "../../Service/indexDB.js";
 function UserSettingInput({
   showUserInput,
   SetShowUserInput,
@@ -82,7 +82,6 @@ function UserSettingInput({
       showMessageUIHelper();
       return;
     }
-    await saveProfilePic(userProfile.userPK, inputFile.current.files[0]);
     SetUseDefaultAvatar(false);
     if (url !== null) {
       URL.revokeObjectURL(url);
@@ -121,6 +120,9 @@ function UserSettingInput({
         const newURL = URL.createObjectURL(avatarPic);
         SetUrl(newURL);
         SetAvatarURL(newURL);
+        const time = new Date().getTime();
+        await saveProfilePicTime(userProfile.userPK, time);
+        await saveProfilePic(userProfile.userPK, inputFile.current.files[0]);
         SetUseDefaultAvatar(false);
         SetMessage("Avatar changed successfully");
         showMessageUIHelper();

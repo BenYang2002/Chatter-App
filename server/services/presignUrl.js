@@ -20,7 +20,6 @@ async function getProfilePicPresignedGetUrl(userPK) {
     Key: key,
   });
   const signedUrl = await getSignedUrl(s3, cmd, { expiresIn: 60 });
-  console.log(signedUrl);
   return signedUrl;
 }
 

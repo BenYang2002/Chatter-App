@@ -1,4 +1,8 @@
-import { getCreationTime } from "../services/avatar.service.js";
+import {
+  getCreationTime,
+  createAvatarKey,
+  updateAvatarKey,
+} from "../services/avatar.service.js";
 import { checkCookie } from "../services/auth.service.js";
 import {
   getProfilePicPresignedGetUrl,
@@ -7,12 +11,21 @@ import {
 import requireUser from "./helpers/requireUser.js";
 import { getAvatarKey } from "../services/avatar.service.js";
 import requireInputValue from "./helpers/requireInputValue.js";
-function checkProfilePicUpdated(localCreationTime, userPK) {
-  remoteCreationTime = getCreationTime(userPK);
-  if (remoteCreationTime > localCreationTime) {
-    return true;
+async function checkProfilePicUpdated(req, res) {
+  const remoteCreationTime = await getCreationTime(req.body.userPK);
+  //console.log(remoteCreationTime);
+  //console.log(req.body.localCreationTime);
+  if (!remoteCreationTime) {
+    res.status(404).send({ updated: false });
+    return;
+  } else if (
+    req.body.localCreationTime === undefined ||
+    remoteCreationTime > req.body.localCreationTime
+  ) {
+    res.status(200).send({ updated: true });
+    return;
   }
-  return false;
+  res.status(200).send({ updated: false });
 }
 
 async function getProfilePicUrl(req, res) {
