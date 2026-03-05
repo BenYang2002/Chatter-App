@@ -82,7 +82,7 @@ function UserSettingInput({
       showMessageUIHelper();
       return;
     }
-    await saveProfilePic(userProfile.email, inputFile.current.files[0]);
+    await saveProfilePic(userProfile.userPK, inputFile.current.files[0]);
     SetUseDefaultAvatar(false);
     if (url !== null) {
       URL.revokeObjectURL(url);
@@ -109,7 +109,7 @@ function UserSettingInput({
           SetMessage("Failed to upload avatar to cloud");
           showMessageUIHelper();
         }
-        const saveRoute = "/api/user/saveAvatar";
+        const saveRoute = "/api/avatar/saveAvatar";
         const saveKeyRes = await fetch(saveRoute, {
           credentials: "include",
           method: "POST",
@@ -208,7 +208,7 @@ function UserSettingInput({
     const changeEmailPath = "/api/user/changeEmail";
     const changePasswordPath = "/api/user/changePassword";
     const confirmPasswordPath = "/api/user/confirmPassword";
-    const changeAvatarPath = "/api/user/changeAvatar";
+    const changeAvatarPath = "/api/avatar/changeAvatar";
     if (inputType === "UserId") handleCreateUserId(createUserIdPath);
     else if (inputType === "Email") handleChangeEmail(changeEmailPath);
     else if (inputType === "Password" && resetPassword)

@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import "./UserHMSidebar.css";
 import { useState } from "react";
 import { getProfilePic } from "../Service/indexDB.js";
+import { saveProfilePic } from "../Service/indexDB.js";
 function UserHMSidebar({
   SetDisplaySetting,
   useDefaultAvatar,
@@ -12,16 +13,15 @@ function UserHMSidebar({
 }) {
   useEffect(() => {
     (async () => {
-      const email = localStorage.getItem("email");
-      if (email) {
-        const profilePic = await getProfilePic(email);
+      if (userProfile.userPK) {
+        const profilePic = await getProfilePic(userProfile.userPK);
         if (profilePic) {
           const url = URL.createObjectURL(profilePic);
           SetUseDefaultAvatar(false);
           SetAvatarURL(url);
         } else {
           // get the url for the retrieving image
-          const res = await fetch("/api/user/ProfilePic", {
+          const res = await fetch("/api/avatar/ProfilePic", {
             method: "POST",
             credentials: "include",
             headers: { "Content-Type": "application/json" },
@@ -34,6 +34,8 @@ function UserHMSidebar({
             });
             if (retrieveRes.ok) {
               const img = await retrieveRes.blob();
+              await saveProfilePic(userProfile.userPK, img);
+              console.log("saved to local");
               const url = URL.createObjectURL(img);
               SetUseDefaultAvatar(false);
               SetAvatarURL(url);

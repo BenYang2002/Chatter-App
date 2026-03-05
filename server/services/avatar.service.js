@@ -1,4 +1,14 @@
 import prisma from "../prisma.js";
+async function getCreationTime(userPK) {
+  if (!userPK) return null;
+  const avatar = await prisma.avatar.findUnique({
+    where: {
+      userPK: userPK,
+    },
+  });
+  return avatar.createdAt;
+}
+
 async function createAvatarKey(userPK, key) {
   if (!userPK || !key) return null;
   const avatar = await prisma.avatar.create({
@@ -32,4 +42,4 @@ async function updateAvatarKey(userPK, key) {
   return avatar;
 }
 
-export { createAvatarKey, getAvatarKey, updateAvatarKey };
+export { createAvatarKey, getAvatarKey, updateAvatarKey, getCreationTime };

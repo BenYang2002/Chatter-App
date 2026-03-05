@@ -1,6 +1,7 @@
 import express from "express";
 import { fileURLToPath } from "url";
 import authRouter from "./routers/auth.routers.js";
+import avatarRouter from "./routers/avatar.routers.js";
 import path from "path";
 import cookieParser from "cookie-parser";
 import userRouter from "./routers/user.routers.js";
@@ -10,6 +11,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
+app.use("/api/avatar", avatarRouter);
 app.get("/api/ping", (req, res) => {
   res.json({ ok: true, from: "express" });
 });

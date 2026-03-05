@@ -79,7 +79,6 @@ function Register({ userProfile, SetUserProfile }) {
         email: email,
         userPK: data.userPK,
       }));
-      const data = await res.json();
       localStorage.setItem("name", username);
       localStorage.setItem("email", email);
       localStorage.setItem("userPK", data.userPK);
