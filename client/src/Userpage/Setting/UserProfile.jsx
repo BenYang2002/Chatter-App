@@ -1,5 +1,5 @@
 import "./UserProfile.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import UserSettingInput from "./UserSettingInput.jsx";
 function UserProfile({
   useDefaultAvatar,
@@ -13,6 +13,11 @@ function UserProfile({
   const [showUserInput, SetShowUserInput] = useState(false);
   const [placeholderMSG, SetPlaceHolderMSG] = useState("");
   const [inputType, SetInputType] = useState("");
+  useEffect(() => {
+    if (userProfile.userId) {
+      setUserIdCreated(true);
+    }
+  }, []);
   return (
     <>
       {showUserInput && (
@@ -25,6 +30,7 @@ function UserProfile({
           SetAvatarURL={SetAvatarURL}
           userProfile={userProfile}
           SetUserProfile={SetUserProfile}
+          userIdCreated={userIdCreated}
         />
       )}
       <div className="user-profile">
@@ -57,7 +63,7 @@ function UserProfile({
           <div className="create-userid">
             <p
               onClick={() => {
-                SetPlaceHolderMSG("create userId");
+                SetPlaceHolderMSG("input your userId");
                 SetInputType("UserId");
                 SetShowUserInput(true);
               }}

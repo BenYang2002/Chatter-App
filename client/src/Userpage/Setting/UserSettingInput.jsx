@@ -1,5 +1,5 @@
 import "./UserSettingInput.css";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   validateEmail,
   validatePassword,
@@ -14,6 +14,7 @@ function UserSettingInput({
   SetAvatarURL,
   userProfile,
   SetUserProfile,
+  userIdCreated,
 }) {
   const [inputValue, SetInputValue] = useState("");
   const [confirmPassword, SetConfirmPassword] = useState("");
@@ -220,6 +221,16 @@ function UserSettingInput({
     else if (inputType === "Name") handleChangeName(changeNamePath);
     else if (inputType === "Avatar") handleChangeAvatar(changeAvatarPath);
   }
+
+  useEffect(() => {
+    console.log(userIdCreated);
+    if (userIdCreated && inputType === "UserId") {
+      SetShowInputUI(false);
+      SetMessage("Error: Your userId has been set already");
+      SetShowMessageUI(true);
+    }
+  }, []);
+
   return (
     <>
       <div className="setting-input-container">

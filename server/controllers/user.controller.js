@@ -27,7 +27,13 @@ async function handleCreateUserId(req, res) {
   }
   try {
     const user = await requireUser(req, res);
-    if (!user) return;
+    if (!user) {
+      res.status(401).send({ message: "User is not logged in" });
+      return;
+    } else if (user.userId) {
+      res.status(409).send({ message: "UserId already exists" });
+      return;
+    }
     const success = await createUserId(userId, user.id);
     if (success) {
       res.status(200).send({ message: `UserId created: ${userId}` });
