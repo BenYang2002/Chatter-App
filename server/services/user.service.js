@@ -81,6 +81,16 @@ async function getUser(userPK) {
   return user;
 }
 
+async function getUserbyUserId(userId) {
+  if (!userId) return null;
+  const user = await prisma.user.findUnique({
+    where: {
+      userId: userId,
+    },
+  });
+  return user;
+}
+
 async function createUserId(userId, userPK) {
   if (!userId || !userPK) return false;
   const duplicate = await prisma.user.findUnique({ where: { id: userId } });
@@ -105,4 +115,5 @@ export {
   updateUserPassword,
   getUser,
   createUserId,
+  getUserbyUserId,
 };

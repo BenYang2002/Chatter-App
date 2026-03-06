@@ -11,23 +11,41 @@
   justify-content: center;
   align-items: center;
 }
-
 .search-bar {
+  position: relative;
   width: 80%;
   height: 60%;
+}
+
+.search-bar form {
+  width: 100%;
+  height: 100%;
   display: grid;
   grid-template-columns: 22px 1fr;
 }
 
-.search-bar.active {
+.search-bar.active form {
   grid-template-columns: 22px 1fr 22px;
 }
 
 .magnify-glass {
+  padding: 0;
   display: flex;
   justify-content: center;
   align-items: center;
   border: 1px solid gray;
+  border-radius: 0%;
+  background-color: lightgrey;
+}
+
+.magnify-glass:hover {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: px solid gray;
+  outline: none;
+  box-shadow: none;
+  background-color: darkgrey;
 }
 
 .search-input-container {
@@ -143,4 +161,97 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.friend-search-modal {
+  position: absolute;
+  height: 150px;
+  width: 250px;
+  background-color: white;
+  border: 1px solid darkgrey;
+  top: 100%;
+  left: 0;
+}
+
+.search-friend-avatar {
+  border: 1px solid black;
+  width: 50px;
+  height: 50px;
+}
+
+.friend-info {
+  position: relative;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  padding: 0;
+  margin-top: 10px;
+}
+
+.friend-search-modal {
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+.friend-request-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.friend-request-button {
+  height: 40%;
+  width: 80%;
+}
+
+.close-friend-request {
+  position: absolute;
+  z-index: 100;
+  border-radius: 0;
+  width: 30px;
+  height: 30px;
+  right: 0;
+  top: 0;
+  margin: 0;
+  padding: 0;
+  background-color: white;
+}
+
+.close-friend-request:hover {
+  background-color: red;
+  border: 1px solid black;
+  color: white;
+}
+
+.error-modal {
+  position: absolute;
+  height: 100px;
+  width: 250px;
+  background-color: white;
+  border: 1px solid darkgrey;
+  top: 100%;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+
+.close-error-modal {
+  position: absolute;
+  z-index: 100;
+  border-radius: 0;
+  width: 30px;
+  height: 30px;
+  right: 0;
+  top: 0;
+  margin: 0;
+  padding: 0;
+  background-color: white;
+}
+
+.close-error-modal:hover {
+  background-color: red;
+  border: 1px solid black;
+  color: white;
 }

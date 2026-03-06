@@ -21,6 +21,8 @@ model User {
   createdAt DateTime @default(now())
   sessions  Session[]
   avatar    Avatar?
+  friend1   Friend[]   @relation("FriendshipUser1")
+  friend2   Friend[]   @relation("FriendshipUser2")
 }
 
 model Session {
@@ -36,4 +38,13 @@ model Avatar {
   userPK    String     @unique
   key       String     @unique
   createdAt DateTime   @default(now())
+}
+
+model Friend {
+  user1     User      @relation("FriendshipUser1", fields: [userId1], references: [id], onDelete: Cascade)
+  user2     User      @relation("FriendshipUser2", fields: [userId2], references: [id], onDelete: Cascade)
+  userId1   String
+  userId2   String
+  State     String
+  @@id([userId1,userId2])
 }
