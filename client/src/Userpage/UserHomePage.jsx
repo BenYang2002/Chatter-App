@@ -3,11 +3,13 @@ import UserHMChatContent from "./UserHMChatContent";
 import UserHMContact from "./UserHMContact";
 import UserHMSidebar from "./UserHMSidebar";
 import UserSetting from "./Setting/UserSetting";
+import FriendPage from "./UserFriend.jsx";
 import { useState } from "react";
 function UserHomePage({ userProfile, SetUserProfile }) {
   const [displaySetting, SetDisplaySetting] = useState(false);
   const [avatarURL, SetAvatarURL] = useState("");
   const [useDefaultAvatar, SetUseDefaultAvatar] = useState(true);
+  const [showFriendPage, SetShowFriendPage] = useState(false);
   return (
     <>
       <div className="userPage-container">
@@ -30,8 +32,10 @@ function UserHomePage({ userProfile, SetUserProfile }) {
             useDefaultAvatar={useDefaultAvatar}
             avatarURL={avatarURL}
             userProfile={userProfile}
+            SetShowFriendPage={SetShowFriendPage}
           />
-          <UserHMContact />
+          {showFriendPage && <UserHMContact />}
+          {!showFriendPage && <FriendPage />}
           <UserHMChatContent />
         </div>
       </div>

@@ -15,6 +15,7 @@ function UserHMSidebar({
   avatarURL,
   SetAvatarURL,
   userProfile,
+  SetShowFriendPage,
 }) {
   useEffect(() => {
     (async () => {
@@ -86,8 +87,14 @@ function UserHMSidebar({
               : `url(${avatarURL})`,
           }}
         ></div>
-        <div className="chat-icon"></div>
-        <div className="contact-icon"></div>
+        <div
+          className="chat-icon"
+          onClick={() => SetShowFriendPage(false)}
+        ></div>
+        <div
+          className="contact-icon"
+          onClick={() => SetShowFriendPage(true)}
+        ></div>
         <div
           className="setting-icon"
           onClick={() => SetDisplaySetting(true)}
