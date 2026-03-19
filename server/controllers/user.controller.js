@@ -19,6 +19,7 @@ import {
   getAvatarKey,
   updateAvatarKey,
 } from "../services/avatar.service.js";
+import { findFriendRequest } from "../services/friend.service.js";
 async function handleCreateUserId(req, res) {
   const userId = requireInputValue(req, res);
   if (!userId) {
@@ -106,10 +107,35 @@ async function handleChangePassword(req, res) {
   }
 }
 
+async function handleGetUserName(req, res) {
+  try {
+    const user = await requireUser(req, res);
+    if (!user) return;
+    console.log(user);
+    res.status(200).json({ name: user.name });
+  } catch (err) {
+    console.error("Error getting UserName:", err);
+    res.status(500).send({ message: "Internal server error" });
+  }
+}
+
+async function handleGetUserId(req, res) {
+  try {
+    const user = await requireUser(req, res);
+    if (!user) return;
+    res.status(200).send({ userId: user.userId });
+  } catch (err) {
+    console.error("Error getting UserId:", err);
+    res.status(500).send({ message: "Internal server error" });
+  }
+}
+
 export {
   handleCreateUserId,
   handleChangeName,
   handleChangeEmail,
   handleConfirmPassword,
   handleChangePassword,
+  handleGetUserName,
+  handleGetUserId,
 };

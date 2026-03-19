@@ -41,10 +41,10 @@ model Avatar {
 }
 
 model Friend {
-  user1     User      @relation("FriendshipUser1", fields: [userId1], references: [id], onDelete: Cascade)
-  user2     User      @relation("FriendshipUser2", fields: [userId2], references: [id], onDelete: Cascade)
+  user1     User      @relation("FriendshipUser1", fields: [userId1], references: [userId], onDelete: Cascade)
+  user2     User      @relation("FriendshipUser2", fields: [userId2], references: [userId], onDelete: Cascade)
   userId1   String
   userId2   String
-  State     String
+  state     String
   @@id([userId1,userId2])
 }

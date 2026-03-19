@@ -1,9 +1,8 @@
 import "./UserFriend.css";
 import { useState } from "react";
-function FriendPage() {
+function FriendPage({ incomingFriendRequest }) {
   const [newFriendRequest, SetNewFriendRequest] = useState(false);
   const [showNewFriendUI, SetShowNewFriendUI] = useState(false);
-  const [incomingFriendRequest, SetIncomingFriendRequest] = useState([]);
   return (
     <>
       <div className="friend-page-container">
@@ -19,7 +18,7 @@ function FriendPage() {
               <h2>Incoming Friend Request</h2>
             </div>
             {incomingFriendRequest.map((friend) => (
-              <div className="new-friend-container">
+              <div key={friend.userId} className="new-friend-container">
                 <div className="new-friend-profile">
                   <img
                     className="applicant-avatar"

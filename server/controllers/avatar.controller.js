@@ -13,8 +13,6 @@ import { getAvatarKey } from "../services/avatar.service.js";
 import requireInputValue from "./helpers/requireInputValue.js";
 async function checkProfilePicUpdated(req, res) {
   const remoteCreationTime = await getCreationTime(req.body.userPK);
-  //console.log(remoteCreationTime);
-  //console.log(req.body.localCreationTime);
   if (!remoteCreationTime) {
     res.status(404).send({ updated: false });
     return;

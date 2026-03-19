@@ -1,6 +1,6 @@
 import "./UserHMContact.css";
 import { useState } from "react";
-function Contact() {
+function Contact({ userProfile }) {
   const [displayClose, SetDisplayClose] = useState(false);
   const [searchText, SetSearchText] = useState("");
   const [searchedContact, SetSearchedContact] = useState(false);
@@ -8,8 +8,57 @@ function Contact() {
   const [friendName, SetFriendName] = useState("");
   const [showMsg, SetShowMsg] = useState(false);
   const [message, SetMessage] = useState("");
+  const [friendId, SetFriendId] = useState("");
+  const [friendResButton, SetFriendResButton] = useState("Send Friend Request");
+  async function handleSearch() {
+    SetSearchedContact(false);
+    if (friendId.length === 0) {
+      SetMessage("Please provide a valid ID");
+      SetShowMsg(true);
+      return;
+    }
+    SetMessage("sending friend request...");
+    SetShowMsg(true);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      SetMessage("timeout");
+      SetShowMsg(true);
+      controller.abort();
+    }, 10000);
+    try {
+      const res = await fetch(`api/friend/create`, {
+        method: "POST",
+        body: JSON.stringify({
+          friendId: friendId,
+          userId: userProfile.userId,
+          state: "pending",
+        }),
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+      if (res.status === 200) {
+        SetMessage(`Successfully sent friend request to ${friendId}`);
+        SetShowMsg(true);
+        return;
+      } else {
+        const data = await res.json();
+        SetSearchedContact(false);
+        SetMessage(data.message);
+        SetShowMsg(true);
+      }
+    } catch (error) {
+      clearTimeout(timeoutId);
+      SetSearchedContact(false);
+      SetMessage(`failed to send friend request to ${friendId}`);
+      SetShowMsg(true);
+    }
+  }
+
   async function handleSubmit(friendId) {
     if (friendId.length === 0) {
+      SetSearchedContact(false);
       SetMessage("Please provide a valid ID");
       SetShowMsg(true);
       return;
@@ -20,11 +69,11 @@ function Contact() {
       method: "GET",
     });
     if (res.status === 200) {
+      SetFriendId(friendId);
       const data = await res.json();
       const avatarUrl = data.urlFriendAvatar;
       const name = data.name;
       const avatar = await fetch(avatarUrl, { method: "GET" });
-      console.log(avatar);
       if (!avatar.ok) {
         SetAvatarUrl("src/assets/userpage/profile-default-avatar.png");
       } else {
@@ -40,6 +89,26 @@ function Contact() {
       SetMessage(`User ${friendId} does not exist`);
     }
   }
+
+  async function sendFriendRequest() {
+    if (friendId.length === 0) {
+      SetMessage("Please provide a valid ID");
+      SetShowMsg(true);
+      return;
+    }
+    SetFriendResButton("sending request...");
+    const res = await fetch(`api/friend/sendRequest/${friendId}`, {
+      method: "POST",
+    });
+    if (res.status === 200) {
+      SetMessage("Friend request sent");
+      SetShowMsg(true);
+    } else {
+      SetMessage("Failed to send friend request");
+      SetShowMsg(true);
+    }
+  }
+
   return (
     <>
       <div className="contacts">
@@ -64,8 +133,11 @@ function Contact() {
                   <p className="friend-name">User name: {friendName}</p>
                 </div>
                 <div className="friend-request-container">
-                  <button className="friend-request-button">
-                    Send Friend Request
+                  <button
+                    className="friend-request-button"
+                    onClick={() => handleSearch()}
+                  >
+                    {friendResButton}
                   </button>
                 </div>
               </div>

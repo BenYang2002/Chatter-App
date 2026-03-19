@@ -9,7 +9,18 @@ import ProtectedRoute from "./Auth/ProtectedRoute.jsx";
 import "./Homepage.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { useState } from "react";
+import { useEffect } from "react";
+import socket from "./socket.js";
 function App() {
+  useEffect(() => {
+    socket.on("connect", () => {
+      console.log("connected to server:", socket.id);
+    });
+
+    return () => {
+      socket.off("connect");
+    };
+  }, []);
   const [userProfile, SetUserProfile] = useState(() => {
     const getAvatarKey = localStorage.getItem("avatarKey");
     const getName = localStorage.getItem("name");

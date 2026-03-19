@@ -44,3 +44,13 @@
   background-size: cover;
   background-position: center;
 }
+
+.chat-icon-circle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: red;
+}

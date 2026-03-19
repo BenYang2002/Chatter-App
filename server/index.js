@@ -6,8 +6,18 @@ import path from "path";
 import cookieParser from "cookie-parser";
 import userRouter from "./routers/user.routers.js";
 import friendRouter from "./routers/friend.router.js";
+import http from "http";
+import { Server } from "socket.io";
+import { use } from "react";
 const app = express();
 const PORT = 3000;
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173",
+    credentials: true,
+  },
+});
 app.use(express.json());
 app.use(cookieParser());
 app.use("/api/auth", authRouter);
@@ -17,9 +27,23 @@ app.use("/api/friend", friendRouter);
 app.get("/api/ping", (req, res) => {
   res.json({ ok: true, from: "express" });
 });
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+const userPKMap = new Map();
+const socketId = new Map();
+app.set("io", io);
+app.set("userPKMap", userPKMap);
+io.on("connection", (socket) => {
+  console.log("a user connected:", socket.id);
+  socket.on("register", ({ userPK }) => {
+    userPKMap.set(userPK, socket.id);
+    socketId.set(socket.id, userPK);
+  });
+  socket.on("disconnect", () => {
+    const pk = socketId.get(socket.id);
+    socketId.delete(socket.id);
+    userPKMap.delete(pk);
+  });
 });
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -28,4 +52,7 @@ app.get(/.*/, (req, res) => {
   res.sendFile(path.join(__dirname, "../client/dist/index.html"));
 });
 
+server.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+});
 export default app;

@@ -73,7 +73,9 @@ async function checkCookie(cookies) {
 
 async function handleInvalidCookie(cookieInfo, sessionId, res) {
   if (cookieInfo.expired) {
-    await deleteSession(sessionId);
+    if (sessionId) {
+      await deleteSession(sessionId);
+    }
     res.status(401).send({ message: cookieInfo.message });
   } else {
     res.status(cookieInfo.status).send({ message: cookieInfo.message });

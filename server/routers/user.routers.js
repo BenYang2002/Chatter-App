@@ -4,6 +4,8 @@ import {
   handleChangeEmail,
   handleChangePassword,
   handleConfirmPassword,
+  handleGetUserName,
+  handleGetUserId,
 } from "../controllers/user.controller.js";
 import express from "express";
 const router = express.Router();
@@ -21,6 +23,12 @@ router.post("/confirmPassword", (req, res) => {
 });
 router.post("/changePassword", (req, res) => {
   handleChangePassword(req, res);
+});
+router.get("/getUserName", (req, res) => {
+  handleGetUserName(req, res);
+});
+router.get("/getUserId", (req, res) => {
+  handleGetUserId(req, res);
 });
 
 export default router;

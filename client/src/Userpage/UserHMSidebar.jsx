@@ -17,6 +17,7 @@ function UserHMSidebar({
   userProfile,
   SetShowFriendPage,
 }) {
+  const [newMessageCircle, SetNewMessageCircle] = useState(false);
   useEffect(() => {
     (async () => {
       if (userProfile.userPK) {
@@ -38,7 +39,6 @@ function UserHMSidebar({
           }),
         });
         const updatedData = await updatedRes.json();
-        console.log(updatedData);
         if (updatedRes.ok && updatedData.updated) {
           await deleteProfilePicTime(userProfile.userPK);
           await deleteProfilePic(userProfile.userPK);
@@ -87,10 +87,9 @@ function UserHMSidebar({
               : `url(${avatarURL})`,
           }}
         ></div>
-        <div
-          className="chat-icon"
-          onClick={() => SetShowFriendPage(false)}
-        ></div>
+        <div className="chat-icon" onClick={() => SetShowFriendPage(false)}>
+          {newMessageCircle && <div className="chat-icon-circle"></div>}
+        </div>
         <div
           className="contact-icon"
           onClick={() => SetShowFriendPage(true)}

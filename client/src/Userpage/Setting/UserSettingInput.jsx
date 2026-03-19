@@ -223,7 +223,6 @@ function UserSettingInput({
   }
 
   useEffect(() => {
-    console.log(userIdCreated);
     if (userIdCreated && inputType === "UserId") {
       SetShowInputUI(false);
       SetMessage("Error: Your userId has been set already");
