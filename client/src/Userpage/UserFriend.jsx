@@ -1,8 +1,12 @@
+import { useEffect } from "react";
 import "./UserFriend.css";
 import { useState } from "react";
 function FriendPage({ incomingFriendRequest }) {
   const [newFriendRequest, SetNewFriendRequest] = useState(false);
   const [showNewFriendUI, SetShowNewFriendUI] = useState(false);
+  useEffect(() => {
+    if ((incomingFriendRequest || []).length > 0) SetNewFriendRequest(true);
+  }, [incomingFriendRequest]);
   return (
     <>
       <div className="friend-page-container">
@@ -17,8 +21,8 @@ function FriendPage({ incomingFriendRequest }) {
             <div className="incoming-friend">
               <h2>Incoming Friend Request</h2>
             </div>
-            {incomingFriendRequest.map((friend) => (
-              <div key={friend.userId} className="new-friend-container">
+            {(incomingFriendRequest || []).map((friend) => (
+              <div key={friend.id} className="new-friend-container">
                 <div className="new-friend-profile">
                   <img
                     className="applicant-avatar"

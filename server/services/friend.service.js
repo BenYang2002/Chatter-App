@@ -4,8 +4,8 @@ async function createFriendRequest(userId, friendId, state) {
   if (!userId || !friendId) return null;
   const friendRequest = await prisma.friend.create({
     data: {
-      userId1: userId,
-      userId2: friendId,
+      initiator: userId,
+      friendId: friendId,
       state: state,
     },
   });
@@ -13,20 +13,21 @@ async function createFriendRequest(userId, friendId, state) {
 }
 
 async function findFriendRequest(userId, friendId) {
+  if (!userId || !friendId) return null;
   const friendRequest = await prisma.friend.findUnique({
     where: {
-      userId1_userId2: {
-        userId1: userId,
-        userId2: friendId,
+      initiator_friendId: {
+        initiator: userId,
+        friendId: friendId,
       },
     },
   });
   if (!friendRequest) {
     const friendRequest2 = await prisma.friend.findUnique({
       where: {
-        userId1_userId2: {
-          userId1: friendId,
-          userId2: userId,
+        initiator_friendId: {
+          initiator: friendId,
+          friendId: userId,
         },
       },
     });
@@ -37,4 +38,13 @@ async function findFriendRequest(userId, friendId) {
   }
 }
 
-export { createFriendRequest, findFriendRequest };
+async function findAllFriend(userId) {
+  const friendRequest = await prisma.friend.findMany({
+    where: {
+      friendId: userId,
+    },
+  });
+  return friendRequest;
+}
+
+export { createFriendRequest, findFriendRequest, findAllFriend };

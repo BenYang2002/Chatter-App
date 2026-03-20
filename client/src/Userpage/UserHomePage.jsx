@@ -13,7 +13,6 @@ function UserHomePage({ userProfile, SetUserProfile }) {
   const [showFriendPage, SetShowFriendPage] = useState(true);
   const [incomingFriendRequest, SetIncomingFriendRequest] = useState([]);
   useEffect(() => {
-    console.log(userProfile.userPK);
     socket.emit("register", { userPK: userProfile.userPK });
     const handleFriend = async ({ userId, userPK }) => {
       console.log("friend request");
@@ -21,10 +20,58 @@ function UserHomePage({ userProfile, SetUserProfile }) {
       await getFriendProfile(userPK);
     };
     socket.on("friendRequest", handleFriend);
+    const fetchSummary = async () => {
+      await getUserSummary();
+    };
+    fetchSummary();
     return () => {
       socket.off("friendRequest", handleFriend);
     };
   }, []);
+  async function getUserSummary() {
+    const res = await fetch("/api/user/getUserSummary", {
+      method: "GET",
+      credentials: "include",
+    });
+    if (res.status === 200) {
+      const data = await res.json();
+      const friendList = data.userSummary.friendId;
+      for (const friend of friendList) {
+        // get the friend profile for each
+        console.log(`api/user/getUserNameById/${friend}`);
+        const res = await fetch(`api/user/getUserNameById/${friend}`, {
+          method: "GET",
+          credentials: "include",
+        });
+        if (res.status === 200) {
+          const data = await res.json();
+          const name = data.name;
+          const resUrl = await fetch(`api/avatar/profilePic/${friend}`, {
+            method: "GET",
+            credentials: "include",
+          });
+          if (resUrl.status === 200) {
+            const dataUrl = await resUrl.json();
+            const resBlob = await fetch(dataUrl.url);
+            let url = "src/assets/userpage/profile-default-avatar.png";
+            if (resBlob.ok) {
+              const blob = await resBlob.blob();
+              url = URL.createObjectURL(blob);
+            }
+            const friendInfo = { url: url, name: name, id: friend };
+            console.log(friendInfo);
+            SetIncomingFriendRequest((prev) => [...prev, friendInfo]);
+          } else {
+            // use default image
+            const url = "src/assets/userpage/profile-default-avatar.png";
+            const friendInfo = { url: url, name: data.name, id: friend };
+            console.log("friend", friendInfo);
+            SetIncomingFriendRequest((prev) => [...prev, friendInfo]);
+          }
+        }
+      }
+    }
+  }
   async function getFriendProfile(userPK) {
     const res = await fetch("/api/avatar/profilePic", {
       method: "POST",
@@ -50,11 +97,17 @@ function UserHomePage({ userProfile, SetUserProfile }) {
         if (resId.status === 200) {
           const id = await resId.json();
           const res = await fetch(url, { method: "GET" });
+          console.log("res", res);
           if (res.ok) {
             const blob = await res.blob();
             const url = URL.createObjectURL(blob);
             const friend = { url: url, name: nameData.name, id: id };
-            console.log(friend);
+            SetIncomingFriendRequest((prev) => [...prev, friend]);
+          } else {
+            // use default image
+            const url = "src/assets/userpage/profile-default-avatar.png";
+            const friend = { url: url, name: nameData.name, id: id };
+            console.log("friend", friend);
             SetIncomingFriendRequest((prev) => [...prev, friend]);
           }
         }

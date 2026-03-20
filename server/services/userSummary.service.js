@@ -19,6 +19,34 @@ async function getUserSummary(userPK) {
   return userSummary;
 }
 
+async function pushFriendId(userPK, newFriendId) {
+  if (!userPK || !newFriendId) return null;
+  await prisma.userSummary.update({
+    where: { userPK },
+    data: {
+      friendId: {
+        push: newFriendId,
+      },
+    },
+  });
+}
+
+async function removeFriendId(userPK, newFriendId) {
+  const summary = await prisma.userSummary.findUnique({
+    where: { userPK },
+    select: { friendId: true },
+  });
+  const updated = (summary?.friendId || []).filter((id) => id !== newFriendId);
+  await prisma.userSummary.update({
+    where: { userPK },
+    data: {
+      friendId: {
+        set: updated,
+      },
+    },
+  });
+}
+
 async function updateUSFriendRequest(userPK, newFriendRequest) {
   if (!userPK || !newFriendRequest) return null;
   const userSummary = await prisma.userSummary.update({
@@ -32,4 +60,10 @@ async function updateUSFriendRequest(userPK, newFriendRequest) {
   return userSummary;
 }
 
-export { createUserSummaryTransaction, getUserSummary, updateUSFriendRequest };
+export {
+  createUserSummaryTransaction,
+  getUserSummary,
+  updateUSFriendRequest,
+  pushFriendId,
+  removeFriendId,
+};

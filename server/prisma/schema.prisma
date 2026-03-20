@@ -42,16 +42,17 @@ model Avatar {
 }
 
 model Friend {
-  user1     User      @relation("FriendshipUser1", fields: [userId1], references: [userId], onDelete: Cascade)
-  user2     User      @relation("FriendshipUser2", fields: [userId2], references: [userId], onDelete: Cascade)
-  userId1   String
-  userId2   String
+  user1     User      @relation("FriendshipUser1", fields: [initiator], references: [userId], onDelete: Cascade)
+  user2     User      @relation("FriendshipUser2", fields: [friendId], references: [userId], onDelete: Cascade)
+  initiator   String
+  friendId   String
   state     String
-  @@id([userId1,userId2])
+  @@id([initiator,friendId])
 }
 
 model UserSummary {
   userPK           String   @id
+  friendId         String[]
   newFriendRequest Boolean  @default(false)
   user User @relation(fields: [userPK], references: [id], onDelete: Cascade)
 }

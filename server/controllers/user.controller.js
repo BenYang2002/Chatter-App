@@ -20,6 +20,7 @@ import {
   updateAvatarKey,
 } from "../services/avatar.service.js";
 import { findFriendRequest } from "../services/friend.service.js";
+import { getUserSummary } from "../services/userSummary.service.js";
 async function handleCreateUserId(req, res) {
   const userId = requireInputValue(req, res);
   if (!userId) {
@@ -124,11 +125,45 @@ async function handleGetUserName(req, res) {
   }
 }
 
+async function handleGetUserNameById(req, res) {
+  const userId = req.params.userId;
+  if (!userId) {
+    res.status(400).send({ message: "UserId is required" });
+  }
+  try {
+    const user = await getUserbyUserId(userId);
+    console.log(user);
+    if (!user) {
+      res.status(404).send({ message: "User does not exist" });
+      return;
+    }
+    res.status(200).json({ name: user.name });
+  } catch (err) {
+    console.error("Error getting UserName:", err);
+    res.status(500).send({ message: "Internal server error" });
+  }
+}
+
 async function handleGetUserId(req, res) {
   try {
     const user = await requireUser(req, res);
     if (!user) return;
     res.status(200).send({ userId: user.userId });
+  } catch (err) {
+    console.error("Error getting UserId:", err);
+    res.status(500).send({ message: "Internal server error" });
+  }
+}
+
+async function handleGetUserSummary(req, res) {
+  try {
+    const user = await requireUser(req, res);
+    if (!user) return;
+    const userSummary = await getUserSummary(user.id);
+    if (!userSummary) {
+      res.status(500).send({ message: "UserSummary does not exist" });
+    }
+    res.status(200).json({ userSummary: userSummary });
   } catch (err) {
     console.error("Error getting UserId:", err);
     res.status(500).send({ message: "Internal server error" });
@@ -143,4 +178,6 @@ export {
   handleChangePassword,
   handleGetUserName,
   handleGetUserId,
+  handleGetUserSummary,
+  handleGetUserNameById,
 };

@@ -4,6 +4,7 @@ import {
   handleChangeAvatar,
   handleSaveAvatar,
   checkProfilePicUpdated,
+  getProfilePicUrlById,
 } from "../controllers/avatar.controller.js";
 
 const router = express.Router();
@@ -18,6 +19,9 @@ router.post("/saveAvatar", (req, res) => {
 });
 router.post("/checkAvatar", (req, res) => {
   checkProfilePicUpdated(req, res);
+});
+router.get("/profilePic/:userId", (req, res) => {
+  getProfilePicUrlById(req, res);
 });
 
 export default router;

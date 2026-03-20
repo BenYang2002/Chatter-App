@@ -11,6 +11,7 @@ import {
 import requireUser from "./helpers/requireUser.js";
 import { getAvatarKey } from "../services/avatar.service.js";
 import requireInputValue from "./helpers/requireInputValue.js";
+import { getUserbyUserId } from "../services/user.service.js";
 async function checkProfilePicUpdated(req, res) {
   const remoteCreationTime = await getCreationTime(req.body.userPK);
   if (!remoteCreationTime) {
@@ -39,6 +40,30 @@ async function getProfilePicUrl(req, res) {
     res.status(401).send({ message: "Unauthorized" });
   }
 }
+
+async function getProfilePicUrlById(req, res) {
+  const cookieInfo = await checkCookie(req.cookies);
+  if (cookieInfo.valid) {
+    const userId = req.params.userId;
+    if (!userId) {
+      res.status(400).send({ message: "UserId is required" });
+    }
+    const user = await getUserbyUserId(userId);
+    if (!user) {
+      res.status(404).send({ message: "User does not exist" });
+      return;
+    }
+    const url = await getProfilePicPresignedGetUrl(user.id);
+    if (url) {
+      res.status(200).json({ url: url });
+    } else {
+      res.status(404).send({ message: "Profile pic does not exist" });
+    }
+  } else {
+    res.status(401).send({ message: "Unauthorized" });
+  }
+}
+
 async function handleChangeAvatar(req, res) {
   if (req.body.size === null || req.body.size <= 0) {
     res.status(400).send({ message: "invalid avatar" });
@@ -103,4 +128,5 @@ export {
   getProfilePicUrl,
   handleChangeAvatar,
   handleSaveAvatar,
+  getProfilePicUrlById,
 };

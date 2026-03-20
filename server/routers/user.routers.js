@@ -6,6 +6,8 @@ import {
   handleConfirmPassword,
   handleGetUserName,
   handleGetUserId,
+  handleGetUserSummary,
+  handleGetUserNameById,
 } from "../controllers/user.controller.js";
 import express from "express";
 const router = express.Router();
@@ -29,6 +31,12 @@ router.get("/getUserName", (req, res) => {
 });
 router.get("/getUserId", (req, res) => {
   handleGetUserId(req, res);
+});
+router.get("/getUserSummary", (req, res) => {
+  handleGetUserSummary(req, res);
+});
+router.get("/getUserNameById/:userId", (req, res) => {
+  handleGetUserNameById(req, res);
 });
 
 export default router;
