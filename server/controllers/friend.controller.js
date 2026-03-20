@@ -8,6 +8,7 @@ import {
 } from "../services/friend.service.js";
 import app from "../index.js";
 import { use } from "react";
+import { updateUSFriendRequest } from "../services/userSummary.service.js";
 async function searchFriendProfile(req, res) {
   const cookieInfo = await checkCookie(req.cookies);
   if (!cookieInfo.valid) {
@@ -36,6 +37,10 @@ async function searchFriendProfile(req, res) {
 
 async function createFriendRequest(req, res) {
   const cookieInfo = await checkCookie(req.cookies);
+  if (req.body.userId === req.body.friendId) {
+    res.status(400).send({ message: "Cannot send friend request to yourself" });
+    return;
+  }
   const existingRequest = await findFriendRequest(
     req.body.userId,
     req.body.friendId,
@@ -71,12 +76,17 @@ async function createFriendRequest(req, res) {
       const targetFriend = app.get("userPKMap").get(friend.id);
       if (targetFriend) {
         // friend is online currently
-        console.log("friend is online");
-        console.log(targetFriend);
         app
           .get("io")
           .to(targetFriend)
           .emit("friendRequest", { userId, userPK: user.id });
+      } else {
+        // store in userSummary if not currently online
+        const addFriendSummary = await updateUSFriendRequest(friend.id, true);
+        if (!addFriendSummary) {
+          res.status(500).send({ message: "Internal server error" });
+          return;
+        }
       }
       res.status(200).end();
     }

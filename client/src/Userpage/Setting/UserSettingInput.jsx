@@ -159,8 +159,10 @@ function UserSettingInput({
   async function handleCreateUserId(routePath) {
     if (!confirmInput()) return;
     try {
-      modifyADisplay(routePath);
-      SetUserProfile((prev) => ({ ...prev, userId: inputValue }));
+      const res = await modifyADisplay(routePath);
+      if (res.ok) {
+        SetUserProfile((prev) => ({ ...prev, userId: inputValue }));
+      }
     } catch (err) {
       SetMessage(err.message);
       showMessageUIHelper();
@@ -203,6 +205,7 @@ function UserSettingInput({
     const data = await res.json();
     SetMessage(data.message);
     showMessageUIHelper();
+    return res;
   }
 
   async function handleSubmit() {

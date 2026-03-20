@@ -82,6 +82,7 @@ function Register({ userProfile, SetUserProfile }) {
       localStorage.setItem("name", username);
       localStorage.setItem("email", email);
       localStorage.setItem("userPK", data.userPK);
+      localStorage.removeItem("userId");
       navigate("/user");
     } else {
       const text = await res.text();

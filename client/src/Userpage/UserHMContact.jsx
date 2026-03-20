@@ -1,3 +1,4 @@
+import UserProfile from "./Setting/UserProfile";
 import "./UserHMContact.css";
 import { useState } from "react";
 function Contact({ userProfile }) {
@@ -11,6 +12,18 @@ function Contact({ userProfile }) {
   const [friendId, SetFriendId] = useState("");
   const [friendResButton, SetFriendResButton] = useState("Send Friend Request");
   async function handleSearch() {
+    if (userProfile.userId === null) {
+      SetSearchedContact(false);
+      SetMessage("Please set your own ID before adding friends");
+      SetShowMsg(true);
+      return;
+    }
+    if (userProfile.userId === friendId) {
+      SetSearchedContact(false);
+      SetMessage("You cannot add yourself as a friend");
+      SetShowMsg(true);
+      return;
+    }
     SetSearchedContact(false);
     if (friendId.length === 0) {
       SetMessage("Please provide a valid ID");

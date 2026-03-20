@@ -17,6 +17,7 @@ import {
   updateSession,
   getSession,
 } from "../services/session.service.js";
+import { createUserSummaryTransaction } from "../services/userSummary.service.js";
 
 const cookieOptions = {
   httpOnly: true,
@@ -52,6 +53,15 @@ async function handleRegister(req, res) {
         return false;
       }
       const session = await createSessionTransaction(tx, user.id);
+      if (!session) {
+        res.status(500).send({ message: "Internal server error" });
+        return false;
+      }
+      const userSummary = await createUserSummaryTransaction(tx, user.id);
+      if (!userSummary) {
+        res.status(500).send({ message: "Internal server error" });
+        return false;
+      }
       res.cookie("sessionId", session.sessionId, cookieOptions);
       res.status(200).json({
         message: "Registration successful",

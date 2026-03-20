@@ -13,16 +13,17 @@ datasource db {
 }
 
 model User {
-  id        String     @id @default(uuid())
-  email     String    @unique
-  userId    String?   @unique
+  id        String       @id @default(uuid())
+  email     String       @unique
+  userId    String?      @unique
   name      String
   password  String
-  createdAt DateTime @default(now())
+  createdAt DateTime     @default(now())
   sessions  Session[]
   avatar    Avatar?
-  friend1   Friend[]   @relation("FriendshipUser1")
-  friend2   Friend[]   @relation("FriendshipUser2")
+  friend1   Friend[]     @relation("FriendshipUser1")
+  friend2   Friend[]     @relation("FriendshipUser2")
+  summary   UserSummary?
 }
 
 model Session {
@@ -35,7 +36,7 @@ model Session {
 
 model Avatar {
   user      User       @relation(fields: [userPK], references: [id], onDelete: Cascade)
-  userPK    String     @unique
+  userPK    String     @id
   key       String     @unique
   createdAt DateTime   @default(now())
 }
@@ -47,4 +48,10 @@ model Friend {
   userId2   String
   state     String
   @@id([userId1,userId2])
+}
+
+model UserSummary {
+  userPK           String   @id
+  newFriendRequest Boolean  @default(false)
+  user User @relation(fields: [userPK], references: [id], onDelete: Cascade)
 }

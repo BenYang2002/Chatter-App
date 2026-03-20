@@ -1,7 +1,7 @@
 import { getSession } from "../services/session.service.js";
 import { checkCookie, handleInvalidCookie } from "../services/auth.service.js";
 import {
-  getUser,
+  getUserbyUserId,
   createUserId,
   updateUserName,
   updateUserEmail,
@@ -33,6 +33,11 @@ async function handleCreateUserId(req, res) {
       return;
     } else if (user.userId) {
       res.status(409).send({ message: "UserId already exists" });
+      return;
+    }
+    const exist = await getUserbyUserId(userId);
+    if (exist) {
+      res.status(409).send({ message: "UserId is taken" });
       return;
     }
     const success = await createUserId(userId, user.id);

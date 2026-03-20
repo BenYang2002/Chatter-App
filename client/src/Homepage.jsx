@@ -21,12 +21,16 @@ function App() {
       socket.off("connect");
     };
   }, []);
-  const [userProfile, SetUserProfile] = useState(() => {
+  const [userProfile, SetUserProfile] = useState(async () => {
     const getAvatarKey = localStorage.getItem("avatarKey");
     const getName = localStorage.getItem("name");
     const getEmail = localStorage.getItem("email");
-    const getUserId = localStorage.getItem("userId");
     const getUserPK = localStorage.getItem("userPK");
+
+    const getUserId = await fetch("/api/user/getUserId", {
+      method: "GET",
+      credentials: "include",
+    });
 
     const avatarKey = getAvatarKey ? getAvatarKey : null;
     const name = getName ? getName : null;
