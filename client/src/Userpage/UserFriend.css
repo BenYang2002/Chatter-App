@@ -120,3 +120,30 @@
   background-color: lightblue;
   border: 1px solid black;
 }
+
+.message-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  z-index: 100;
+  width: 200px;
+  height: 150px;
+  background-color: white;
+  border: 1px solid black;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.close-message-page {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 0;
+  margin: 0;
+  padding: 0;
+  background-color: white;
+}

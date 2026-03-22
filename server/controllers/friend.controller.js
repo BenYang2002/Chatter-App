@@ -11,7 +11,12 @@ import { use } from "react";
 import {
   updateUSFriendRequest,
   pushFriendId,
+  removeFriendId,
 } from "../services/userSummary.service.js";
+import {
+  acceptFriendRequest as acceptFriend,
+  declineFriendRequest as declineFriend,
+} from "../services/friend.service.js";
 async function searchFriendProfile(req, res) {
   const cookieInfo = await checkCookie(req.cookies);
   if (!cookieInfo.valid) {
@@ -38,14 +43,102 @@ async function searchFriendProfile(req, res) {
   }
 }
 
+async function declineFriendRequest(req, res) {
+  const cookieInfo = await checkCookie(req.cookies);
+  if (!cookieInfo.valid) {
+    handleInvalidCookie(
+      cookieInfo,
+      req.cookies.sessionId ? req.cookies.sessionId : null,
+      res,
+    );
+    return;
+  }
+  const friendId = req.params.friendId;
+  if (!friendId) {
+    res.status(400).send({ message: "friendId is required" });
+    return;
+  }
+  const friend = await getUserbyUserId(friendId);
+  if (!friend || friend === undefined) {
+    res.status(404).send({ message: "Friend does not exist" });
+    return;
+  }
+  const userId = req.body.userId;
+  if (!userId) {
+    res.status(400).send({ message: "userId is required" });
+    return;
+  }
+  const user = await getUserbyUserId(userId);
+  if (!user || user === undefined) {
+    res.status(404).send({ message: "User does not exist" });
+    return;
+  }
+  const friendRequest = await findFriendRequest(userId, friendId);
+  if (!friendRequest || friendRequest === undefined) {
+    res.status(404).send({ message: "Friend request does not exist" });
+    return;
+  }
+  const success = await declineFriend(userId, friendId);
+  if (success) {
+    await removeFriendId(user.id, friendId);
+    res.status(200).send({ message: "Friend request declined" });
+  } else {
+    res.status(500).send({ message: "Internal server error" });
+  }
+}
+
+async function acceptFriendRequest(req, res) {
+  const cookieInfo = await checkCookie(req.cookies);
+  if (!cookieInfo.valid) {
+    handleInvalidCookie(
+      cookieInfo,
+      req.cookies.sessionId ? req.cookies.sessionId : null,
+      res,
+    );
+    return;
+  }
+  const friendId = req.params.friendId;
+  if (!friendId) {
+    res.status(400).send({ message: "friendId is required" });
+    return;
+  }
+  const friend = await getUserbyUserId(friendId);
+  if (!friend || friend === undefined) {
+    res.status(404).send({ message: "Friend does not exist" });
+    return;
+  }
+  const userId = req.body.userId;
+  if (!userId) {
+    res.status(400).send({ message: "userId is required" });
+    return;
+  }
+  const user = await getUserbyUserId(userId);
+  if (!user || user === undefined) {
+    res.status(404).send({ message: "User does not exist" });
+    return;
+  }
+  const friendRequest = await findFriendRequest(userId, friendId);
+  if (!friendRequest || friendRequest === undefined) {
+    res.status(404).send({ message: "Friend request does not exist" });
+    return;
+  }
+  const success = await acceptFriend(userId, friendId);
+  if (!success) {
+    res.status(500).send({ message: "internal server error" });
+    return;
+  } else {
+    // friend request is updated, now update the user summary
+    await removeFriendId(user.id, friendId);
+    res.status(200).send({ message: "Friend request accepted" });
+  }
+}
+
 async function createFriendRequest(req, res) {
   const cookieInfo = await checkCookie(req.cookies);
   if (req.body.userId === req.body.friendId) {
     res.status(400).send({ message: "Cannot send friend request to yourself" });
     return;
   }
-  console.log(req.body.userId);
-  console.log(req.body.friendId);
   const existingRequest = await findFriendRequest(
     req.body.userId,
     req.body.friendId,
@@ -77,23 +170,24 @@ async function createFriendRequest(req, res) {
   } else {
     const friendRequest = await createFriend(userId, friendId, state);
     if (friendRequest) {
-      console.log("friend: " + friend.id);
       const targetFriend = app.get("userPKMap").get(friend.id);
       if (targetFriend) {
         // friend is online currently
-        app
-          .get("io")
-          .to(targetFriend)
-          .emit("friendRequest", { userId, userPK: user.id });
-        await pushFriendId(friend.id, user.userId); // add id for friend
-        const addFriendSummary = await updateUSFriendRequest(friend.id, true);
-        if (!addFriendSummary) {
-          res.status(500).send({ message: "Internal server error" });
-          return;
-        }
+        app.get("io").to(targetFriend).emit("friendRequest", { userId });
+      }
+      await pushFriendId(friend.id, user.userId); // add id for friend
+      const addFriendSummary = await updateUSFriendRequest(friend.id, true);
+      if (!addFriendSummary) {
+        res.status(500).send({ message: "Internal server error" });
+        return;
       }
       res.status(200).end();
     }
   }
 }
-export { searchFriendProfile, createFriendRequest };
+export {
+  searchFriendProfile,
+  createFriendRequest,
+  acceptFriendRequest,
+  declineFriendRequest,
+};

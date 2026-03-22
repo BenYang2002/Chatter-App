@@ -48,7 +48,9 @@ async function removeFriendId(userPK, newFriendId) {
 }
 
 async function updateUSFriendRequest(userPK, newFriendRequest) {
-  if (!userPK || !newFriendRequest) return null;
+  console.log("newFriendRequest", newFriendRequest);
+  if (!userPK || newFriendRequest === null || newFriendRequest === undefined)
+    return null;
   const userSummary = await prisma.userSummary.update({
     where: {
       userPK: userPK,

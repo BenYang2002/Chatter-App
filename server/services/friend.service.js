@@ -47,4 +47,39 @@ async function findAllFriend(userId) {
   return friendRequest;
 }
 
-export { createFriendRequest, findFriendRequest, findAllFriend };
+async function acceptFriendRequest(userId, friendId) {
+  if (!userId || !friendId) return null;
+  const friendRequest = await prisma.friend.update({
+    where: {
+      initiator_friendId: {
+        initiator: friendId,
+        friendId: userId,
+      },
+    },
+    data: {
+      state: "accepted",
+    },
+  });
+  return friendRequest;
+}
+
+async function declineFriendRequest(userId, friendId) {
+  if (!userId || !friendId) return false;
+  await prisma.friend.delete({
+    where: {
+      initiator_friendId: {
+        initiator: friendId,
+        friendId: userId,
+      },
+    },
+  });
+  return true;
+}
+
+export {
+  createFriendRequest,
+  findFriendRequest,
+  findAllFriend,
+  acceptFriendRequest,
+  declineFriendRequest,
+};

@@ -6,18 +6,18 @@ import UserSetting from "./Setting/UserSetting";
 import FriendPage from "./UserFriend.jsx";
 import { useEffect, useState } from "react";
 import socket from "../socket.js";
+import { connect } from "socket.io-client";
 function UserHomePage({ userProfile, SetUserProfile }) {
   const [displaySetting, SetDisplaySetting] = useState(false);
   const [avatarURL, SetAvatarURL] = useState("");
   const [useDefaultAvatar, SetUseDefaultAvatar] = useState(true);
   const [showFriendPage, SetShowFriendPage] = useState(true);
   const [incomingFriendRequest, SetIncomingFriendRequest] = useState([]);
+
   useEffect(() => {
     socket.emit("register", { userPK: userProfile.userPK });
-    const handleFriend = async ({ userId, userPK }) => {
-      console.log("friend request");
-      console.log(userId, userPK);
-      await getFriendProfile(userPK);
+    const handleFriend = async ({ userId }) => {
+      await getFriendProfile(userId);
     };
     socket.on("friendRequest", handleFriend);
     const fetchSummary = async () => {
@@ -28,6 +28,7 @@ function UserHomePage({ userProfile, SetUserProfile }) {
       socket.off("friendRequest", handleFriend);
     };
   }, []);
+
   async function getUserSummary() {
     const res = await fetch("/api/user/getUserSummary", {
       method: "GET",
@@ -38,7 +39,6 @@ function UserHomePage({ userProfile, SetUserProfile }) {
       const friendList = data.userSummary.friendId;
       for (const friend of friendList) {
         // get the friend profile for each
-        console.log(`api/user/getUserNameById/${friend}`);
         const res = await fetch(`api/user/getUserNameById/${friend}`, {
           method: "GET",
           credentials: "include",
@@ -59,58 +59,54 @@ function UserHomePage({ userProfile, SetUserProfile }) {
               url = URL.createObjectURL(blob);
             }
             const friendInfo = { url: url, name: name, id: friend };
-            console.log(friendInfo);
-            SetIncomingFriendRequest((prev) => [...prev, friendInfo]);
+            SetIncomingFriendRequest((prev) => {
+              const existed = prev.some(
+                (friend) => friend.id === friendInfo.id,
+              );
+              if (existed) return prev;
+              return [...prev, friendInfo];
+            });
           } else {
             // use default image
             const url = "src/assets/userpage/profile-default-avatar.png";
             const friendInfo = { url: url, name: data.name, id: friend };
-            console.log("friend", friendInfo);
-            SetIncomingFriendRequest((prev) => [...prev, friendInfo]);
+            SetIncomingFriendRequest((prev) => {
+              const existed = prev.some(
+                (friend) => friend.id === friendInfo.id,
+              );
+              if (existed) return prev;
+              return [...prev, friendInfo];
+            });
           }
         }
       }
     }
   }
-  async function getFriendProfile(userPK) {
-    const res = await fetch("/api/avatar/profilePic", {
-      method: "POST",
+  // something is wrong here: we are fetching the wrong name and id
+  async function getFriendProfile(userId) {
+    const res = await fetch(`/api/avatar/profilePic/${userId}`, {
+      method: "GET",
       credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userPK: userPK }),
     });
     if (res.status === 200) {
       const data = await res.json();
       const url = data.url;
-      const resName = await fetch("/api/user/getUserName", {
+      const resName = await fetch(`/api/user/getUserNameById/${userId}`, {
         method: "GET",
         credentials: "include",
       });
-      if (resName.status === 200) {
-        const nameData = await resName.json();
-        console.log("name", resName);
-        console.log(nameData);
-        const resId = await fetch("/api/user/getUserId", {
-          method: "GET",
-          credentials: "include",
-        });
-        if (resId.status === 200) {
-          const id = await resId.json();
-          const res = await fetch(url, { method: "GET" });
-          console.log("res", res);
-          if (res.ok) {
-            const blob = await res.blob();
-            const url = URL.createObjectURL(blob);
-            const friend = { url: url, name: nameData.name, id: id };
-            SetIncomingFriendRequest((prev) => [...prev, friend]);
-          } else {
-            // use default image
-            const url = "src/assets/userpage/profile-default-avatar.png";
-            const friend = { url: url, name: nameData.name, id: id };
-            console.log("friend", friend);
-            SetIncomingFriendRequest((prev) => [...prev, friend]);
-          }
-        }
+      const nameData = await resName.json();
+      const resUrl = await fetch(url, { method: "GET" });
+      if (resUrl.ok) {
+        const blob = await resUrl.blob();
+        const url = URL.createObjectURL(blob);
+        const friend = { url: url, name: nameData.name, id: userId };
+        SetIncomingFriendRequest((prev) => [...prev, friend]);
+      } else {
+        // use default image
+        const url = "src/assets/userpage/profile-default-avatar.png";
+        const friend = { url: url, name: nameData.name, id: userId };
+        SetIncomingFriendRequest((prev) => [...prev, friend]);
       }
     }
   }
@@ -140,7 +136,11 @@ function UserHomePage({ userProfile, SetUserProfile }) {
           />
           {showFriendPage && <UserHMContact userProfile={userProfile} />}
           {!showFriendPage && (
-            <FriendPage incomingFriendRequest={incomingFriendRequest} />
+            <FriendPage
+              incomingFriendRequest={incomingFriendRequest}
+              SetIncomingFriendRequest={SetIncomingFriendRequest}
+              userProfile={userProfile}
+            />
           )}
           <UserHMChatContent />
         </div>

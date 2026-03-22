@@ -6,6 +6,7 @@ import path from "path";
 import cookieParser from "cookie-parser";
 import userRouter from "./routers/user.routers.js";
 import friendRouter from "./routers/friend.router.js";
+import userSummaryRouter from "./routers/userSummary.routers.js";
 import http from "http";
 import { Server } from "socket.io";
 import { use } from "react";
@@ -24,6 +25,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 app.use("/api/avatar", avatarRouter);
 app.use("/api/friend", friendRouter);
+app.use("/api/userSummary", userSummaryRouter);
 app.get("/api/ping", (req, res) => {
   res.json({ ok: true, from: "express" });
 });
@@ -38,6 +40,7 @@ io.on("connection", (socket) => {
     socketId.set(socket.id, userPK);
   });
   socket.on("disconnect", () => {
+    console.log("a user disconnected:", socket.id);
     const pk = socketId.get(socket.id);
     socketId.delete(socket.id);
     userPKMap.delete(pk);

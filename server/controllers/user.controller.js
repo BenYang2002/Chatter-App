@@ -117,7 +117,6 @@ async function handleGetUserName(req, res) {
   try {
     const user = await requireUser(req, res);
     if (!user) return;
-    console.log(user);
     res.status(200).json({ name: user.name });
   } catch (err) {
     console.error("Error getting UserName:", err);
@@ -132,7 +131,6 @@ async function handleGetUserNameById(req, res) {
   }
   try {
     const user = await getUserbyUserId(userId);
-    console.log(user);
     if (!user) {
       res.status(404).send({ message: "User does not exist" });
       return;

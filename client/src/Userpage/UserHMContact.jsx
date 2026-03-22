@@ -12,7 +12,12 @@ function Contact({ userProfile }) {
   const [friendId, SetFriendId] = useState("");
   const [friendResButton, SetFriendResButton] = useState("Send Friend Request");
   async function handleSearch() {
-    if (userProfile.userId === null) {
+    if (
+      userProfile.userId === null ||
+      userProfile.userId === "" ||
+      userProfile.userId === "null" ||
+      userProfile.userId === undefined
+    ) {
       SetSearchedContact(false);
       SetMessage("Please set your own ID before adding friends");
       SetShowMsg(true);
