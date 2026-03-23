@@ -39,7 +39,6 @@ function FriendPage({
             "Content-Type": "application/json",
           },
         });
-        console.log(res);
         if (res.status !== 200) {
           const data = await res.json();
           SetMsg(
@@ -68,7 +67,6 @@ function FriendPage({
       },
       body: JSON.stringify({ userId: userProfile.userId }),
     });
-    console.log("triggered");
     if (res.status === 200) {
       //change the UI for the chat page
       const updated = incomingFriendRequest.filter(
@@ -86,7 +84,6 @@ function FriendPage({
             "Content-Type": "application/json",
           },
         });
-        console.log(res);
         if (res.status !== 200) {
           const data = await res.json();
           SetMsg(

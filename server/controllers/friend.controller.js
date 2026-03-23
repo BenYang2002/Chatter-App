@@ -17,6 +17,7 @@ import {
   acceptFriendRequest as acceptFriend,
   declineFriendRequest as declineFriend,
 } from "../services/friend.service.js";
+import { createConversation } from "../services/conversation.service.js";
 async function searchFriendProfile(req, res) {
   const cookieInfo = await checkCookie(req.cookies);
   if (!cookieInfo.valid) {
@@ -129,6 +130,46 @@ async function acceptFriendRequest(req, res) {
   } else {
     // friend request is updated, now update the user summary
     await removeFriendId(user.id, friendId);
+    // also create the conversation for the two users
+    const lastMessage = "Friend request accepted, start messaging now!";
+    const lastMessageDate = new Date().toISOString();
+    const userPK = user.id;
+    const friendPK = friend.id;
+    const userName = user.name;
+    const friendName = friend.name;
+    await createConversation(
+      userPK,
+      friendPK,
+      friendName,
+      lastMessage,
+      lastMessageDate,
+    );
+    await createConversation(
+      friendPK,
+      userPK,
+      userName,
+      lastMessage,
+      lastMessageDate,
+    );
+    const notifyUser = app.get("userPKMap").get(userPK);
+    const notifyFriend = app.get("userPKMap").get(friendPK);
+    if (notifyUser) {
+      app.get("io").to(notifyUser).emit("friendRequestAccepted", {
+        friendName,
+        lastMessage,
+        lastMessageDate,
+        friendId,
+      });
+    }
+    console.log("notifyFriend", userId);
+    if (notifyFriend) {
+      app.get("io").to(notifyFriend).emit("friendRequestAccepted", {
+        friendName: userName,
+        lastMessage,
+        lastMessageDate,
+        friendId: userId,
+      });
+    }
     res.status(200).send({ message: "Friend request accepted" });
   }
 }

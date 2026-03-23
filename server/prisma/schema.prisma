@@ -24,6 +24,7 @@ model User {
   friend1   Friend[]     @relation("FriendshipUser1")
   friend2   Friend[]     @relation("FriendshipUser2")
   summary   UserSummary?
+  conversation Conversations[]
 }
 
 model Session {
@@ -55,4 +56,14 @@ model UserSummary {
   friendId         String[]
   newFriendRequest Boolean  @default(false)
   user User @relation(fields: [userPK], references: [id], onDelete: Cascade)
+}
+
+model Conversations {
+  userPK           String   
+  friendPK         String
+  friendName       String
+  lastMessage      String
+  lastMessageDate  DateTime
+  user User @relation(fields: [userPK], references: [id], onDelete: Cascade)
+  @@id([userPK,friendPK])
 }

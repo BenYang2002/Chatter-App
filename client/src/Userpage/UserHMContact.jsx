@@ -1,7 +1,7 @@
 import UserProfile from "./Setting/UserProfile";
 import "./UserHMContact.css";
 import { useState } from "react";
-function Contact({ userProfile }) {
+function Contact({ userProfile, friendList }) {
   const [displayClose, SetDisplayClose] = useState(false);
   const [searchText, SetSearchText] = useState("");
   const [searchedContact, SetSearchedContact] = useState(false);
@@ -209,28 +209,32 @@ function Contact({ userProfile }) {
           </div>
         </div>
         <div className="contact-list">
-          <div className="example-contact">
-            <div className="contact-avatar-container">
-              <div className="contact-avatar"></div>
-            </div>
-            <div className="message-frame">
-              <div className="message-container">
-                <div className="top-message">
-                  <div className="contact-name">
-                    <p>赵玹辛</p>
+          {(friendList || []).map((friend) => (
+            <div key={friend.friendId} className="contact-container">
+              <div className="contact-avatar-container">
+                <img
+                  src={friend.url}
+                  alt="friend's avatar"
+                  className="contact-avatar"
+                />
+              </div>
+              <div className="message-frame">
+                <div className="message-container">
+                  <div className="top-message">
+                    <div className="contact-name">
+                      <p>{friend.name}</p>
+                    </div>
+                    <div className="last-message-time">
+                      <p>{friend.lastMessageDate}</p>
+                    </div>
                   </div>
-                  <div className="last-message-time">
-                    <p>2026/1/29</p>
+                  <div className="bottom-message">
+                    <p className="last-message">{friend.lastMessage || ""}</p>
                   </div>
-                </div>
-                <div className="bottom-message">
-                  <p className="last-message">
-                    this is the last message we send
-                  </p>
                 </div>
               </div>
             </div>
-          </div>
+          ))}
         </div>
       </div>
     </>

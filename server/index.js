@@ -7,6 +7,7 @@ import cookieParser from "cookie-parser";
 import userRouter from "./routers/user.routers.js";
 import friendRouter from "./routers/friend.router.js";
 import userSummaryRouter from "./routers/userSummary.routers.js";
+import conversationRouter from "./routers/conversations.routers.js";
 import http from "http";
 import { Server } from "socket.io";
 import { use } from "react";
@@ -26,6 +27,7 @@ app.use("/api/user", userRouter);
 app.use("/api/avatar", avatarRouter);
 app.use("/api/friend", friendRouter);
 app.use("/api/userSummary", userSummaryRouter);
+app.use("/api/conversations", conversationRouter);
 app.get("/api/ping", (req, res) => {
   res.json({ ok: true, from: "express" });
 });
