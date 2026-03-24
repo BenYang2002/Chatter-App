@@ -96,3 +96,66 @@
   outline: none;
   border: none;
 }
+
+.message-time {
+  font-size: 10px;
+  background-color: lightgray;
+  width: fit-content;
+}
+
+.friend-message {
+  text-align: left;
+  margin-left: 10px;
+  font-size: 16px;
+  background-color: lightgrey;
+  color: black;
+  padding: 8px 12px;
+  max-width: 60%;
+  border-radius: 10px; /* rounded bubble */
+  width: fit-content; /* shrink to content */
+}
+
+.my-message {
+  text-align: right;
+  margin-right: 10px;
+  font-size: 16px;
+  background-color: lightgreen;
+  color: black;
+  padding: 8px 12px;
+  max-width: 60%;
+  border-radius: 10px; /* rounded bubble */
+  width: fit-content; /* shrink to content */
+}
+
+.friend-message-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.friend-message-image {
+  width: 30px;
+  height: 30px;
+  margin-left: 10px;
+}
+
+.my-message-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.my-message-image {
+  width: 30px;
+  height: 30px;
+  margin-right: 10px;
+}
+
+p {
+  user-select: none;
+}
+
+.message-time-row {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
