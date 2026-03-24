@@ -61,8 +61,40 @@ async function updateConversationLastMessage(
   return conversation;
 }
 
+async function getFriendPK(userPK) {
+  if (!userPK) return null;
+  const conversation = await prisma.conversations.findMany({
+    where: {
+      userPK: userPK,
+    },
+  });
+  if (!conversation) return null;
+  return conversation.map((friend) => {
+    return friend.friendPK;
+  });
+}
+
+async function getLastMessageInfo(userPK, friendPK) {
+  if (!userPK || !friendPK) return null;
+  const conversation = await prisma.conversations.findUnique({
+    where: {
+      userPK_friendPK: {
+        userPK: userPK,
+        friendPK: friendPK,
+      },
+    },
+  });
+  if (!conversation) return null;
+  return {
+    lastMessage: conversation.lastMessage,
+    lastMessageDate: conversation.lastMessageDate,
+  };
+}
+
 export {
   createConversation,
   updateConversationName,
   updateConversationLastMessage,
+  getFriendPK,
+  getLastMessageInfo,
 };

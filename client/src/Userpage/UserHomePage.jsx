@@ -28,6 +28,7 @@ function UserHomePage({ userProfile, SetUserProfile }) {
       await getUserSummary();
     };
     fetchSummary();
+    initializeFriendList();
     return () => {
       socket.off("friendRequest", handleFriend);
       socket.off("friendRequestAccepted", handleAcceptFriend);
@@ -40,24 +41,17 @@ function UserHomePage({ userProfile, SetUserProfile }) {
     friendId,
   }) {
     // get the friend image url
-    console.log("getting url");
-    console.log("friendId", friendId);
-    console.log("userPK", userProfile.userPK);
     const res = await fetch("api/conversations/avatarHelper", {
       method: "POST",
       credentials: "include",
       body: JSON.stringify({ userPK: userProfile.userPK, friendId: friendId }),
       headers: { "Content-Type": "application/json" },
     });
-    console.log("getting url");
-    console.log(res);
     if (res.status === 200) {
       const data = await res.json();
       const fetchUrl = data.url;
-      console.log("fetchUrl", fetchUrl);
       const resBlob = await fetch(fetchUrl);
       let url = "src/assets/userpage/profile-default-avatar.png";
-      console.log("getting blob");
       if (resBlob.ok) {
         url = URL.createObjectURL(await resBlob.blob());
       }
@@ -69,7 +63,6 @@ function UserHomePage({ userProfile, SetUserProfile }) {
         lastMessage: lastMessage,
         lastMessageDate: date,
       };
-      console.log("friend", friend);
       SetFriendList((prev) => {
         const existed = prev.some((friend) => friend.friendId === friendId);
         if (existed) return prev;
@@ -78,6 +71,32 @@ function UserHomePage({ userProfile, SetUserProfile }) {
     }
   }
 
+  async function initializeFriendList() {
+    // grab friendlist, where each friend consists of :
+    // avatarUrl, friendName, last message, last message date, friendId
+    const res = await fetch("api/conversations/initializeConversations", {
+      method: "POST",
+      credentials: "include",
+      body: JSON.stringify({ userPK: userProfile.userPK }),
+      headers: { "Content-Type": "application/json" },
+    });
+    if (res.status === 200) {
+      const data = await res.json();
+      console.log("data", data);
+      const friendList = data.friendList;
+      for (const friend of friendList) {
+        const blobRes = await fetch(friend.url);
+        if (blobRes.ok) {
+          const blob = await blobRes.blob();
+          const url = URL.createObjectURL(blob);
+          friend.url = url;
+        } else {
+          friend.url = "src/assets/userpage/profile-default-avatar.png";
+        }
+      }
+      SetFriendList(friendList);
+    }
+  }
   function formatMessageTime(dateString) {
     const date = new Date(dateString);
     const now = new Date();

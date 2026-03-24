@@ -2,8 +2,10 @@ import { checkCookie, handleInvalidCookie } from "../services/auth.service.js";
 import {
   updateConversationName as updateName,
   updateConversationLastMessage as updateLastMessage,
+  getFriendPK,
+  getLastMessageInfo,
 } from "../services/conversation.service.js";
-import { getUserbyUserId } from "../services/user.service.js";
+import { getUserbyUserId, getUser } from "../services/user.service.js";
 import { getProfilePicPresignedGetUrl } from "../services/presignUrl.js";
 async function updateConversationName(req, res) {
   const cookieInfo = await checkCookie(req.cookies);
@@ -58,6 +60,46 @@ async function updateConversationLastMessage(req, res) {
   res.status(200).json(updated);
 }
 
+async function initializeConversations(req, res) {
+  const cookieInfo = await checkCookie(req.cookies);
+  if (!cookieInfo.valid) {
+    handleInvalidCookie(
+      cookieInfo,
+      req.cookies.sessionId ? req.cookies.sessionId : null,
+      res,
+    );
+    return;
+  }
+  const userPK = req.body.userPK;
+  if (!userPK) {
+    res.status(400).send({ message: "userPK is required" });
+    return;
+  }
+  const friendPKList = await getFriendPK(userPK);
+  console.log("friendPKList", friendPKList);
+  if (!friendPKList) {
+    res.status(500).send({ message: "Internal server error" });
+    return;
+  }
+  if (friendPKList.length === 0) return res.status(200).json([]);
+  // grab url, name and last message as well as date for each
+  const friendList = [];
+  for (const pk of friendPKList) {
+    const friend = await getUser(pk);
+    if (!friend || friend === undefined) {
+      continue;
+    }
+    const url = await getProfilePicPresignedGetUrl(pk); // url to fetch avatar
+    const name = friend.name;
+    const { lastMessage, lastMessageDate } = await getLastMessageInfo(
+      userPK,
+      pk,
+    );
+    friendList.push({ url, name, lastMessage, lastMessageDate });
+  }
+  res.status(200).json({ friendList });
+}
+
 async function avatarHelper(req, res) {
   const cookieInfo = await checkCookie(req.cookies);
   if (!cookieInfo.valid) {
@@ -88,4 +130,9 @@ async function avatarHelper(req, res) {
   }
 }
 
-export { updateConversationName, updateConversationLastMessage, avatarHelper };
+export {
+  updateConversationName,
+  updateConversationLastMessage,
+  avatarHelper,
+  initializeConversations,
+};
