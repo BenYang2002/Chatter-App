@@ -1,19 +1,47 @@
 import "./UserHMChatContent.css";
-function UserHMChatContent() {
+import { useState } from "react";
+function UserHMChatContent({
+  chatContactInitial,
+  chatContentName,
+  inputMessage,
+  SetInputMessage,
+}) {
   return (
-    <div className="chat-content">
-      <div className="message-header"></div>
-      <div className="message-content"></div>
-      <div className="message-input">
-        <div className="message-input-tool">
-          <div className="emoji"></div>
-          <div className="file"></div>
-          <div className="history"></div>
+    <>
+      {!chatContactInitial && (
+        <div className="chat-content">
+          <div className="message-header">
+            <h2>{chatContentName}</h2>
+          </div>
+          <div className="message-content"></div>
+          <div className="message-input">
+            <div className="message-input-tool">
+              <div className="emoji"></div>
+              <div className="file"></div>
+              <div className="history"></div>
+            </div>
+            <div className="message-input-textinput">
+              <textarea
+                type="text"
+                onChange={(e) => SetInputMessage(e.target.value)}
+                value={inputMessage}
+              ></textarea>
+            </div>
+            <div className="message-input-submit">
+              <button>Send</button>
+            </div>
+          </div>
         </div>
-        <div className="message-input-textinput"></div>
-        <div className="message-input-submit"></div>
-      </div>
-    </div>
+      )}
+      {chatContactInitial && (
+        <div className="chat-initial">
+          <img
+            className="chat-initial-img"
+            src="src/assets/userpage/chat-content-initial.png"
+          />
+        </div>
+      )}
+    </>
   );
 }
 export default UserHMChatContent;

@@ -6,6 +6,13 @@
 
 .message-header {
   border-bottom: 1px solid grey;
+  display: flex;
+  align-items: center;
+}
+
+.message-header h2 {
+  margin-left: 15px;
+  caret-color: transparent;
 }
 
 .message-content {
@@ -14,7 +21,7 @@
 
 .message-input {
   display: grid;
-  grid-template-rows: 40px 3fr 1fr;
+  grid-template-rows: 40px 3fr 50px;
 }
 
 .message-input-tool {
@@ -46,4 +53,46 @@
   background-position: center;
   width: 40px;
   height: 40px;
+}
+
+.chat-initial {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.chat-initial-img {
+  width: 100%;
+  height: 100%;
+}
+
+.message-input-submit button {
+  position: absolute;
+  right: 20px;
+  bottom: 5px;
+  width: 100px;
+  background-color: lightgray;
+  border: 1px solid grey;
+  color: green;
+}
+
+.message-input-textinput textarea {
+  width: 100%;
+  height: 100%;
+  margin: 0px;
+  border-radius: 0;
+  box-sizing: border-box;
+  padding-left: 10px;
+  font-size: 16px;
+  line-height: 1.4;
+  overflow-y: auto;
+  outline: none;
+  border: none;
+}
+
+.message-input-textinput textarea:focus {
+  outline: none;
+  border: none;
 }

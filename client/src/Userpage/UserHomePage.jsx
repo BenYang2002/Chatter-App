@@ -13,6 +13,9 @@ function UserHomePage({ userProfile, SetUserProfile }) {
   const [useDefaultAvatar, SetUseDefaultAvatar] = useState(true);
   const [showFriendPage, SetShowFriendPage] = useState(true);
   const [incomingFriendRequest, SetIncomingFriendRequest] = useState([]);
+  const [chatContactInitial, SetChatContactInitial] = useState(true);
+  const [chatContentName, SetChatContentName] = useState("");
+  const [inputMessage, SetInputMessage] = useState("");
   // a friend list consists of:
   // avatarUrl, friendName, last message, last message date, friendId
   const [friendList, SetFriendList] = useState([]);
@@ -224,7 +227,13 @@ function UserHomePage({ userProfile, SetUserProfile }) {
             SetShowFriendPage={SetShowFriendPage}
           />
           {showFriendPage && (
-            <UserHMContact userProfile={userProfile} friendList={friendList} />
+            <UserHMContact
+              userProfile={userProfile}
+              friendList={friendList}
+              SetChatContactInitial={SetChatContactInitial}
+              SetChatContentName={SetChatContentName}
+              SetInputMessage={SetInputMessage}
+            />
           )}
           {!showFriendPage && (
             <FriendPage
@@ -233,7 +242,12 @@ function UserHomePage({ userProfile, SetUserProfile }) {
               userProfile={userProfile}
             />
           )}
-          <UserHMChatContent />
+          <UserHMChatContent
+            chatContactInitial={chatContactInitial}
+            chatContentName={chatContentName}
+            inputMessage={inputMessage}
+            SetInputMessage={SetInputMessage}
+          />
         </div>
       </div>
     </>

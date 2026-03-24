@@ -1,7 +1,13 @@
 import UserProfile from "./Setting/UserProfile";
 import "./UserHMContact.css";
 import { useState } from "react";
-function Contact({ userProfile, friendList }) {
+function Contact({
+  userProfile,
+  friendList,
+  SetChatContactInitial,
+  SetChatContentName,
+  SetInputMessage,
+}) {
   const [displayClose, SetDisplayClose] = useState(false);
   const [searchText, SetSearchText] = useState("");
   const [searchedContact, SetSearchedContact] = useState(false);
@@ -210,7 +216,15 @@ function Contact({ userProfile, friendList }) {
         </div>
         <div className="contact-list">
           {(friendList || []).map((friend) => (
-            <div key={friend.friendId} className="contact-container">
+            <div
+              key={friend.friendId}
+              className="contact-container"
+              onClick={() => {
+                SetChatContactInitial(false);
+                SetChatContentName(friend.name);
+                SetInputMessage("");
+              }}
+            >
               <div className="contact-avatar-container">
                 <img
                   src={friend.url}
