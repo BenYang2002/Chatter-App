@@ -13,18 +13,20 @@ datasource db {
 }
 
 model User {
-  id        String       @id @default(uuid())
-  email     String       @unique
-  userId    String?      @unique
-  name      String
-  password  String
-  createdAt DateTime     @default(now())
-  sessions  Session[]
-  avatar    Avatar?
-  friend1   Friend[]     @relation("FriendshipUser1")
-  friend2   Friend[]     @relation("FriendshipUser2")
-  summary   UserSummary?
-  conversation Conversations[]
+  id            String       @id @default(uuid())
+  email         String       @unique
+  userId        String?      @unique
+  name          String
+  password      String
+  createdAt     DateTime     @default(now())
+  sessions      Session[]
+  avatar        Avatar?
+  friend1       Friend[]     @relation("FriendshipUser1")
+  friend2       Friend[]     @relation("FriendshipUser2")
+  summary       UserSummary?
+  conversation  Conversations[]
+  sendMessage   ChatMessages[]   @relation("MessageSender")
+  receiveMessage ChatMessages[] @relation("MessageReceiver")
 }
 
 model Session {
@@ -66,4 +68,15 @@ model Conversations {
   lastMessageDate  DateTime
   user User @relation(fields: [userPK], references: [id], onDelete: Cascade)
   @@id([userPK,friendPK])
+}
+
+model ChatMessages {
+  id              String   @id @default(uuid())
+  senderPK        String
+  receiverPK      String
+  content         String
+  type            String
+  createAt        DateTime  @default(now())
+  sender   User @relation("MessageSender", fields: [senderPK], references: [id])
+  receiver User @relation("MessageReceiver", fields: [receiverPK], references: [id])
 }

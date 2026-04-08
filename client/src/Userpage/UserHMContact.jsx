@@ -7,6 +7,7 @@ function Contact({
   SetChatContactInitial,
   SetChatContentName,
   SetInputMessage,
+  SetCurrentChatFriendId,
 }) {
   const [displayClose, SetDisplayClose] = useState(false);
   const [searchText, SetSearchText] = useState("");
@@ -223,6 +224,7 @@ function Contact({
                 SetChatContactInitial(false);
                 SetChatContentName(friend.name);
                 SetInputMessage("");
+                SetCurrentChatFriendId(friend.friendId);
               }}
             >
               <div className="contact-avatar-container">

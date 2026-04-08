@@ -2,6 +2,7 @@
   background-color: white;
   display: grid;
   grid-template-rows: 60px 3fr 1fr;
+  height: 40vw;
 }
 
 .message-header {
@@ -16,6 +17,9 @@
 }
 
 .message-content {
+  overflow-y: auto;
+  height: 100%;
+  min-height: 0;
   border-bottom: 1px solid grey;
 }
 

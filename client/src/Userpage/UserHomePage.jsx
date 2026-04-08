@@ -19,7 +19,15 @@ function UserHomePage({ userProfile, SetUserProfile }) {
   // a friend list consists of:
   // avatarUrl, friendName, last message, last message date, friendId
   const [friendList, SetFriendList] = useState([]);
-
+  // senderPK, message, date, avatarUrl
+  // for chat message:
+  // {
+  //  "friendA": [msg1, msg2, msg3],
+  //  "friendB": [msg4, msg5]
+  // }
+  // where msg is {senderId, content, time, avatarUrl}
+  const [chatMessages, SetChatMessages] = useState([]);
+  const [currentChatFriendId, SetCurrentChatFriendId] = useState(null);
   useEffect(() => {
     socket.emit("register", { userPK: userProfile.userPK });
     const handleFriend = async ({ userId }) => {
@@ -85,7 +93,6 @@ function UserHomePage({ userProfile, SetUserProfile }) {
     });
     if (res.status === 200) {
       const data = await res.json();
-      console.log("data", data);
       const friendList = data.friendList;
       for (const friend of friendList) {
         const blobRes = await fetch(friend.url);
@@ -233,6 +240,7 @@ function UserHomePage({ userProfile, SetUserProfile }) {
               SetChatContactInitial={SetChatContactInitial}
               SetChatContentName={SetChatContentName}
               SetInputMessage={SetInputMessage}
+              SetCurrentChatFriendId={SetCurrentChatFriendId}
             />
           )}
           {!showFriendPage && (
@@ -247,6 +255,11 @@ function UserHomePage({ userProfile, SetUserProfile }) {
             chatContentName={chatContentName}
             inputMessage={inputMessage}
             SetInputMessage={SetInputMessage}
+            chatMessages={chatMessages}
+            userProfile={userProfile}
+            currentChatFriendId={currentChatFriendId}
+            SetChatMessages={SetChatMessages}
+            avatarURL={avatarURL}
           />
         </div>
       </div>

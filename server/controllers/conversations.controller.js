@@ -91,11 +91,12 @@ async function initializeConversations(req, res) {
     }
     const url = await getProfilePicPresignedGetUrl(pk); // url to fetch avatar
     const name = friend.name;
+    const friendId = friend.userId;
     const { lastMessage, lastMessageDate } = await getLastMessageInfo(
       userPK,
       pk,
     );
-    friendList.push({ url, name, lastMessage, lastMessageDate });
+    friendList.push({ url, name, lastMessage, lastMessageDate, friendId });
   }
   res.status(200).json({ friendList });
 }
