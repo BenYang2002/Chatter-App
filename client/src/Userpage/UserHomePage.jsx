@@ -4,7 +4,7 @@ import UserHMContact from "./UserHMContact";
 import UserHMSidebar from "./UserHMSidebar";
 import UserSetting from "./Setting/UserSetting";
 import FriendPage from "./UserFriend.jsx";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import socket from "../socket.js";
 import { connect } from "socket.io-client";
 function UserHomePage({ userProfile, SetUserProfile }) {
@@ -19,6 +19,10 @@ function UserHomePage({ userProfile, SetUserProfile }) {
   // a friend list consists of:
   // avatarUrl, friendName, last message, last message date, friendId
   const [friendList, SetFriendList] = useState([]);
+  const friendListRef = useRef(friendList);
+  useEffect(() => {
+    friendListRef.current = friendList;
+  }, [friendList]);
   // senderPK, message, date, avatarUrl
   // for chat message:
   // {
@@ -35,6 +39,7 @@ function UserHomePage({ userProfile, SetUserProfile }) {
     };
     socket.on("friendRequest", handleFriend);
     socket.on("friendRequestAccepted", handleAcceptFriend);
+    socket.on("receiveMessage", handleReceiveMessage);
     const fetchSummary = async () => {
       await getUserSummary();
     };
@@ -43,8 +48,39 @@ function UserHomePage({ userProfile, SetUserProfile }) {
     return () => {
       socket.off("friendRequest", handleFriend);
       socket.off("friendRequestAccepted", handleAcceptFriend);
+      socket.off("receiveMessage", handleReceiveMessage);
     };
   }, []);
+  async function handleReceiveMessage({ message }) {
+    console.log("message received:", message);
+    const { senderId, content, type, createAt } = message;
+    console.log("friendList", friendListRef.current);
+    const friend = friendListRef.current.find(
+      (friend) => friend.friendId === senderId,
+    );
+    const url = friend
+      ? friend.url
+      : "src/assets/userpage/profile-default-avatar.png";
+    const newMessage = {
+      content: content,
+      senderId: senderId,
+      createAt: createAt,
+      avatarURL: url,
+      type: type,
+    };
+    console.log("newMessage", newMessage);
+    SetChatMessages((prev) => {
+      const oldMessages = prev[senderId] || [];
+      const newMessages = [...oldMessages, newMessage].sort(
+        (a, b) => new Date(a.createAt) - new Date(b.createAt),
+      );
+      console.log("updated messages for", senderId, newMessages);
+      return {
+        ...prev,
+        [senderId]: newMessages,
+      };
+    });
+  }
   async function handleAcceptFriend({
     friendName,
     lastMessage,
@@ -94,6 +130,7 @@ function UserHomePage({ userProfile, SetUserProfile }) {
     if (res.status === 200) {
       const data = await res.json();
       const friendList = data.friendList;
+      console.log("friendList", friendList);
       for (const friend of friendList) {
         const blobRes = await fetch(friend.url);
         if (blobRes.ok) {

@@ -56,11 +56,10 @@ function UserHMChatContent({
       const newMessage = {
         content: messageSent,
         senderId: userProfile.userPK,
-        time: creationTime,
+        createAt: creationTime,
         avatarURL: avatarURL,
         type: "text",
       };
-      console.log("avatarURL", avatarURL);
       SetChatMessages((prev) => {
         const oldMessages = prev[currentChatFriendId] || [];
         const newMessages = [...oldMessages, newMessage].sort(
@@ -88,12 +87,14 @@ function UserHMChatContent({
           <div className="message-content">
             {chatMessages[currentChatFriendId]?.map((msg) => {
               const isMine = msg.senderId === userProfile.userPK;
-
               return isMine ? (
-                <div className="my-message-container">
+                <div
+                  key={currentChatFriendId + msg.createAt}
+                  className="my-message-container"
+                >
                   <div className="message-time-row">
                     <div className="message-time">
-                      {formatMessageTime(msg.time)}
+                      {formatMessageTime(msg.createAt)}
                     </div>
                   </div>
 
@@ -103,10 +104,13 @@ function UserHMChatContent({
                   </div>
                 </div>
               ) : (
-                <div className="friend-message-container">
+                <div
+                  key={currentChatFriendId + msg.createAt}
+                  className="friend-message-container"
+                >
                   <div className="message-time-row">
                     <div className="message-time">
-                      {formatMessageTime(msg.time)}
+                      {formatMessageTime(msg.createAt)}
                     </div>
                   </div>
 
