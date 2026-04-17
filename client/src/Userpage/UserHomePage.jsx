@@ -7,6 +7,13 @@ import FriendPage from "./UserFriend.jsx";
 import { useEffect, useState, useRef, use } from "react";
 import socket from "../socket.js";
 import { connect } from "socket.io-client";
+import {
+  getProfilePic,
+  getProfilePicTime,
+  saveProfilePic,
+  deleteProfilePicTime,
+  deleteProfilePic,
+} from "../Service/indexDB.js";
 function UserHomePage({ userProfile, SetUserProfile }) {
   const [displaySetting, SetDisplaySetting] = useState(false);
   const [avatarURL, SetAvatarURL] = useState("");
@@ -22,9 +29,13 @@ function UserHomePage({ userProfile, SetUserProfile }) {
   const [friendList, SetFriendList] = useState([]);
   const friendListRef = useRef(friendList);
   const didInitRef = useRef(false);
+  const avatarUrlRef = useRef(avatarURL);
   useEffect(() => {
     friendListRef.current = friendList;
   }, [friendList]);
+  useEffect(() => {
+    avatarUrlRef.current = avatarURL;
+  }, [avatarURL]);
   // senderPK, message, date, avatarUrl
   // for chat message:
   // {
@@ -42,6 +53,61 @@ function UserHomePage({ userProfile, SetUserProfile }) {
     socket.on("friendRequest", handleFriend);
     socket.on("friendRequestAccepted", handleAcceptFriend);
     socket.on("receiveMessage", handleReceiveMessage);
+    (async () => {
+      if (userProfile.userPK) {
+        const profilePic = await getProfilePic(userProfile.userPK);
+        if (profilePic) {
+          // check if there's a local avatar
+          const url = URL.createObjectURL(profilePic);
+          SetUseDefaultAvatar(false);
+          SetAvatarURL(url);
+        }
+        const localUpdatedTime = await getProfilePicTime(userProfile.userPK);
+        const updatedRes = await fetch("/api/avatar/checkAvatar", {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userPK: userProfile.userPK,
+            localCreationTime: localUpdatedTime,
+          }),
+        });
+        const updatedData = await updatedRes.json();
+        if (updatedRes.ok && updatedData.updated) {
+          await deleteProfilePicTime(userProfile.userPK);
+          await deleteProfilePic(userProfile.userPK);
+          // the local version needs to be updated
+          // get the url for the retrieving image
+          const res = await fetch("/api/avatar/ProfilePic", {
+            // retrieve the url to get the image
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userPK: userProfile.userPK }),
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const retrieveRes = await fetch(data.url, {
+              // getting the actual image
+              method: "get",
+            });
+            if (retrieveRes.ok) {
+              const img = await retrieveRes.blob();
+              await saveProfilePic(userProfile.userPK, img);
+              const url = URL.createObjectURL(img);
+              SetUseDefaultAvatar(false);
+              SetAvatarURL(url);
+            } else {
+              SetUseDefaultAvatar(true);
+              SetAvatarURL("");
+            }
+          } else {
+            SetUseDefaultAvatar(true);
+            SetAvatarURL("");
+          }
+        }
+      }
+    })();
     const fetchSummary = async () => {
       await getUserSummary();
     };
@@ -144,7 +210,7 @@ function UserHomePage({ userProfile, SetUserProfile }) {
             createAt: msg.msgMeta.createAt,
             avatarURL:
               msg.msgMeta.senderId === userProfile.userPK
-                ? avatarURL
+                ? avatarUrlRef.current
                 : urlMap[friendId] ||
                   "src/assets/userpage/profile-default-avatar.png",
             type: msg.msgMeta.type,
