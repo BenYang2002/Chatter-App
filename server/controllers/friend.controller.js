@@ -161,7 +161,6 @@ async function acceptFriendRequest(req, res) {
         friendId,
       });
     }
-    console.log("notifyFriend", userId);
     if (notifyFriend) {
       app.get("io").to(notifyFriend).emit("friendRequestAccepted", {
         friendName: userName,

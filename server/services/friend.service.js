@@ -41,7 +41,7 @@ async function findFriendRequest(userId, friendId) {
 async function findAllFriend(userId) {
   const friendRequest = await prisma.friend.findMany({
     where: {
-      friendId: userId,
+      OR: [{ initiator: userId }, { friendId: userId }],
     },
   });
   return friendRequest;

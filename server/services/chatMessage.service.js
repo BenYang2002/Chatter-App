@@ -13,4 +13,17 @@ async function createNewMessage(userPK, friendPK, content, type, creationTime) {
   return message;
 }
 
-export { createNewMessage };
+async function getChatHistory(userPK, friendPK) {
+  if (!userPK || !friendPK) return null;
+  const messages = await prisma.chatMessages.findMany({
+    where: {
+      OR: [
+        { senderPK: userPK, receiverPK: friendPK },
+        { senderPK: friendPK, receiverPK: userPK },
+      ],
+    },
+  });
+  return messages;
+}
+
+export { createNewMessage, getChatHistory };

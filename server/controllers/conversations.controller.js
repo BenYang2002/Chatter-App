@@ -76,7 +76,6 @@ async function initializeConversations(req, res) {
     return;
   }
   const friendPKList = await getFriendPK(userPK);
-  console.log("friendPKList", friendPKList);
   if (!friendPKList) {
     res.status(500).send({ message: "Internal server error" });
     return;

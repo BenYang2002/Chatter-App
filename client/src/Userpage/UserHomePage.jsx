@@ -4,7 +4,7 @@ import UserHMContact from "./UserHMContact";
 import UserHMSidebar from "./UserHMSidebar";
 import UserSetting from "./Setting/UserSetting";
 import FriendPage from "./UserFriend.jsx";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, use } from "react";
 import socket from "../socket.js";
 import { connect } from "socket.io-client";
 function UserHomePage({ userProfile, SetUserProfile }) {
@@ -16,10 +16,12 @@ function UserHomePage({ userProfile, SetUserProfile }) {
   const [chatContactInitial, SetChatContactInitial] = useState(true);
   const [chatContentName, SetChatContentName] = useState("");
   const [inputMessage, SetInputMessage] = useState("");
+  const [friendUrl, SetFriendUrl] = useState({});
   // a friend list consists of:
   // avatarUrl, friendName, last message, last message date, friendId
   const [friendList, SetFriendList] = useState([]);
   const friendListRef = useRef(friendList);
+  const didInitRef = useRef(false);
   useEffect(() => {
     friendListRef.current = friendList;
   }, [friendList]);
@@ -44,7 +46,11 @@ function UserHomePage({ userProfile, SetUserProfile }) {
       await getUserSummary();
     };
     fetchSummary();
-    initializeFriendList();
+    const init = async () => {
+      const mp = await initializeFriendList();
+      await intializeChatHistory(mp);
+    };
+    init();
     return () => {
       socket.off("friendRequest", handleFriend);
       socket.off("friendRequestAccepted", handleAcceptFriend);
@@ -52,9 +58,7 @@ function UserHomePage({ userProfile, SetUserProfile }) {
     };
   }, []);
   async function handleReceiveMessage({ message }) {
-    console.log("message received:", message);
     const { senderId, content, type, createAt } = message;
-    console.log("friendList", friendListRef.current);
     const friend = friendListRef.current.find(
       (friend) => friend.friendId === senderId,
     );
@@ -68,13 +72,11 @@ function UserHomePage({ userProfile, SetUserProfile }) {
       avatarURL: url,
       type: type,
     };
-    console.log("newMessage", newMessage);
     SetChatMessages((prev) => {
       const oldMessages = prev[senderId] || [];
       const newMessages = [...oldMessages, newMessage].sort(
         (a, b) => new Date(a.createAt) - new Date(b.createAt),
       );
-      console.log("updated messages for", senderId, newMessages);
       return {
         ...prev,
         [senderId]: newMessages,
@@ -118,9 +120,54 @@ function UserHomePage({ userProfile, SetUserProfile }) {
     }
   }
 
+  async function intializeChatHistory(urlMap) {
+    console.log("Initializing chat history...");
+    if (didInitRef.current) return;
+    didInitRef.current = true;
+
+    const res = await fetch("api/chat/getChatHistory", {
+      method: "GET",
+      credentials: "include",
+    });
+    if (res.status === 200) {
+      const data = await res.json();
+      //console.log("Chat history data received:", data);
+      for (const chatHistory of data.messages) {
+        const friendId = chatHistory.friendId;
+        console.log(`Initializing chat history with friend ${friendId}...`);
+        for (const msg of chatHistory.messages) {
+          console.log("Processing message:", msg);
+          console.log("avatar", avatarURL);
+          const newMessage = {
+            content: msg.content,
+            senderId: msg.msgMeta.senderId,
+            createAt: msg.msgMeta.createAt,
+            avatarURL:
+              msg.msgMeta.senderId === userProfile.userPK
+                ? avatarURL
+                : urlMap[friendId] ||
+                  "src/assets/userpage/profile-default-avatar.png",
+            type: msg.msgMeta.type,
+          };
+          SetChatMessages((prev) => {
+            const oldMessages = prev[friendId] || [];
+            const newMessages = [...oldMessages, newMessage].sort(
+              (a, b) => new Date(a.createAt) - new Date(b.createAt),
+            );
+            return {
+              ...prev,
+              [friendId]: newMessages,
+            };
+          });
+        }
+      }
+    }
+  }
+
   async function initializeFriendList() {
     // grab friendlist, where each friend consists of :
     // avatarUrl, friendName, last message, last message date, friendId
+    console.log("Initializing friend list...");
     const res = await fetch("api/conversations/initializeConversations", {
       method: "POST",
       credentials: "include",
@@ -129,19 +176,24 @@ function UserHomePage({ userProfile, SetUserProfile }) {
     });
     if (res.status === 200) {
       const data = await res.json();
+      const urlMap = {};
       const friendList = data.friendList;
-      console.log("friendList", friendList);
       for (const friend of friendList) {
         const blobRes = await fetch(friend.url);
         if (blobRes.ok) {
           const blob = await blobRes.blob();
           const url = URL.createObjectURL(blob);
           friend.url = url;
+          urlMap[friend.friendId] = url;
+          SetFriendUrl((prev) => ({ ...prev, [friend.friendId]: url }));
         } else {
           friend.url = "src/assets/userpage/profile-default-avatar.png";
+          urlMap[friend.friendId] = friend.url;
+          SetFriendUrl((prev) => ({ ...prev, [friend.friendId]: friend.url }));
         }
       }
       SetFriendList(friendList);
+      return urlMap;
     }
   }
   function formatMessageTime(dateString) {
@@ -166,6 +218,7 @@ function UserHomePage({ userProfile, SetUserProfile }) {
     }
   }
   async function getUserSummary() {
+    console.log("Fetching user summary...");
     const res = await fetch("/api/user/getUserSummary", {
       method: "GET",
       credentials: "include",
