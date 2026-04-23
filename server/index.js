@@ -12,15 +12,23 @@ import chatRouter from "./routers/chatMessage.routers.js";
 import http from "http";
 import { Server } from "socket.io";
 import { use } from "react";
+import cors from "cors";
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
+const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: CLIENT_URL,
     credentials: true,
   },
 });
+app.use(
+  cors({
+    origin: CLIENT_URL,
+    credentials: true,
+  }),
+);
 app.use(express.json());
 app.use(cookieParser());
 app.use("/api/auth", authRouter);
@@ -60,6 +68,6 @@ app.get(/.*/, (req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
 export default app;

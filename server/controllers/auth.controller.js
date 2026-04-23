@@ -19,12 +19,13 @@ import {
 } from "../services/session.service.js";
 import { createUserSummaryTransaction } from "../services/userSummary.service.js";
 
+const isProd = process.env.NODE_ENV === "production";
+
 const cookieOptions = {
   httpOnly: true,
-  sameSite: "lax",
-  secure: false, // todo: change this before deploy
+  sameSite: isProd ? "none" : "lax",
+  secure: isProd,
 };
-
 async function handleRegister(req, res) {
   try {
     const existingEmail = await prisma.user.findUnique({
