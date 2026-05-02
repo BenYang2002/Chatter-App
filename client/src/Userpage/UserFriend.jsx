@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import "./UserFriend.css";
 import { useState } from "react";
+import { acceptRequest, declineRequest } from "../Service/friend.service.js";
+import { updateNFR } from "../Service/user.service.js";
 function FriendPage({
   incomingFriendRequest,
   SetIncomingFriendRequest,
@@ -14,90 +16,43 @@ function FriendPage({
     if ((incomingFriendRequest || []).length > 0) SetNewFriendRequest(true);
   }, [incomingFriendRequest]);
   async function handleAccept(friendId) {
-    //change the state of the friend request
-    const res = await fetch(`/api/friend/accept/${friendId}`, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ userId: userProfile.userId }),
-    });
-    if (res.status === 200) {
-      const updated = incomingFriendRequest.filter(
-        (item) => item.id !== friendId,
-      );
-      let incomingFriend = updated.length;
+    try {
+      await acceptRequest(friendId, userProfile.userId);
+      const updated = incomingFriendRequest.filter((item) => item.id !== friendId);
       SetIncomingFriendRequest(updated);
-      if (incomingFriend === 0) {
+      if (updated.length === 0) {
         SetNewFriendRequest(false);
-        const res = await fetch("/api/userSummary/updateNFR", {
-          method: "POST",
-          credentials: "include",
-          body: JSON.stringify({ userPK: userProfile.userPK }),
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        if (res.status !== 200) {
-          const data = await res.json();
-          SetMsg(
-            "Failed to update friend request status, Error message: " +
-              data.message,
-          );
+        try {
+          await updateNFR(userProfile.userPK);
+        } catch (err) {
+          SetMsg("Failed to update friend request status, Error message: " + err.message);
           SetShowMessageUI(true);
         }
       }
       SetMsg("Successfully added friend: " + friendId);
       SetShowMessageUI(true);
-    } else {
-      const data = await res.json();
-      SetMsg("Failed to accept friend request, Error message: " + data.message);
+    } catch (err) {
+      SetMsg("Failed to accept friend request, Error message: " + err.message);
       SetShowMessageUI(true);
     }
-    //change the UI for the chat page
   }
+
   async function handleDecline(friendId) {
-    // ask server to remove that friend request
-    const res = await fetch(`/api/friend/decline/${friendId}`, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ userId: userProfile.userId }),
-    });
-    if (res.status === 200) {
-      //change the UI for the chat page
-      const updated = incomingFriendRequest.filter(
-        (item) => item.id !== friendId,
-      );
-      let incomingFriend = updated.length;
+    try {
+      await declineRequest(friendId, userProfile.userId);
+      const updated = incomingFriendRequest.filter((item) => item.id !== friendId);
       SetIncomingFriendRequest(updated);
-      if (incomingFriend === 0) {
+      if (updated.length === 0) {
         SetNewFriendRequest(false);
-        const res = await fetch("/api/userSummary/updateNFR", {
-          method: "POST",
-          credentials: "include",
-          body: JSON.stringify({ userPK: userProfile.userPK }),
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        if (res.status !== 200) {
-          const data = await res.json();
-          SetMsg(
-            "Failed to update friend request status, Error message: " +
-              data.message,
-          );
+        try {
+          await updateNFR(userProfile.userPK);
+        } catch (err) {
+          SetMsg("Failed to update friend request status, Error message: " + err.message);
           SetShowMessageUI(true);
         }
       }
-    } else {
-      const data = await res.json();
-      SetMsg(
-        "Failed to decline friend request, Error message: " + data.message,
-      );
+    } catch (err) {
+      SetMsg("Failed to decline friend request, Error message: " + err.message);
       SetShowMessageUI(true);
     }
   }

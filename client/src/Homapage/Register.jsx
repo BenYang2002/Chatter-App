@@ -4,6 +4,7 @@ import { useState } from "react";
 import { data, useNavigate } from "react-router-dom";
 import SpinCat from "./SpinCat";
 import { validateEmail } from "../Service/format.validate.js";
+import { register } from "../Service/auth.service.js";
 function Register({ userProfile, SetUserProfile }) {
   const navigate = useNavigate();
   // user info states
@@ -66,13 +67,8 @@ function Register({ userProfile, SetUserProfile }) {
       return;
     }
     SetShowSpinCat(true);
-    const res = await fetch("api/auth/register", {
-      method: "post",
-      headers: { "Content-type": "application/json" },
-      body: JSON.stringify({ username, email, password }),
-    });
-    const data = await res.json();
-    if (res.ok) {
+    try {
+      const data = await register(username, email, password);
       SetUserProfile((prev) => ({
         ...prev,
         name: username,
@@ -84,12 +80,10 @@ function Register({ userProfile, SetUserProfile }) {
       localStorage.setItem("userPK", data.userPK);
       localStorage.removeItem("userId");
       navigate("/user");
-    } else {
-      const text = await res.text();
-      const data = text ? JSON.parse(text) : {};
+    } catch (err) {
       SetShowSpinCat(false);
       SetShowError(true);
-      SetErrorMessage(data.message || "Internal server error");
+      SetErrorMessage(err.message || "Internal server error");
     }
   }
 

@@ -14,6 +14,17 @@ import {
   deleteProfilePicTime,
   deleteProfilePic,
 } from "../Service/indexDB.js";
+import {
+  initializeConversations,
+  avatarHelper,
+} from "../Service/conversation.service.js";
+import { getChatHistory } from "../Service/chat.service.js";
+import {
+  checkAvatar,
+  getOwnProfilePicUrl,
+  getProfilePicUrlById,
+} from "../Service/avatar.service.js";
+import { getUserSummary, getUserNameById } from "../Service/user.service.js";
 function UserHomePage({ userProfile, SetUserProfile }) {
   const [displaySetting, SetDisplaySetting] = useState(false);
   const [avatarURL, SetAvatarURL] = useState("");
@@ -63,53 +74,39 @@ function UserHomePage({ userProfile, SetUserProfile }) {
           SetAvatarURL(url);
         }
         const localUpdatedTime = await getProfilePicTime(userProfile.userPK);
-        const updatedRes = await fetch("/api/avatar/checkAvatar", {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userPK: userProfile.userPK,
-            localCreationTime: localUpdatedTime,
-          }),
-        });
-        const updatedData = await updatedRes.json();
-        if (updatedRes.ok && updatedData.updated) {
-          await deleteProfilePicTime(userProfile.userPK);
-          await deleteProfilePic(userProfile.userPK);
-          // the local version needs to be updated
-          // get the url for the retrieving image
-          const res = await fetch("/api/avatar/ProfilePic", {
-            // retrieve the url to get the image
-            method: "POST",
-            credentials: "include",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userPK: userProfile.userPK }),
-          });
-          if (res.ok) {
-            const data = await res.json();
-            const retrieveRes = await fetch(data.url, {
-              // getting the actual image
-              method: "get",
-            });
-            if (retrieveRes.ok) {
-              const img = await retrieveRes.blob();
-              await saveProfilePic(userProfile.userPK, img);
-              const url = URL.createObjectURL(img);
-              SetUseDefaultAvatar(false);
-              SetAvatarURL(url);
-            } else {
+        try {
+          const updatedData = await checkAvatar(
+            userProfile.userPK,
+            localUpdatedTime,
+          );
+          if (updatedData.updated) {
+            await deleteProfilePicTime(userProfile.userPK);
+            await deleteProfilePic(userProfile.userPK);
+            try {
+              const data = await getOwnProfilePicUrl(userProfile.userPK);
+              const retrieveRes = await fetch(data.url, { method: "GET" });
+              if (retrieveRes.ok) {
+                const img = await retrieveRes.blob();
+                await saveProfilePic(userProfile.userPK, img);
+                const url = URL.createObjectURL(img);
+                SetUseDefaultAvatar(false);
+                SetAvatarURL(url);
+              } else {
+                SetUseDefaultAvatar(true);
+                SetAvatarURL("");
+              }
+            } catch (err) {
               SetUseDefaultAvatar(true);
               SetAvatarURL("");
             }
-          } else {
-            SetUseDefaultAvatar(true);
-            SetAvatarURL("");
           }
+        } catch (err) {
+          // checkAvatar failed, keep existing local state
         }
       }
     })();
     const fetchSummary = async () => {
-      await getUserSummary();
+      await loadFriendRequests();
     };
     fetchSummary();
     const init = async () => {
@@ -155,55 +152,38 @@ function UserHomePage({ userProfile, SetUserProfile }) {
     lastMessageDate,
     friendId,
   }) {
-    // get the friend image url
-    const res = await fetch("api/conversations/avatarHelper", {
-      method: "POST",
-      credentials: "include",
-      body: JSON.stringify({ userPK: userProfile.userPK, friendId: friendId }),
-      headers: { "Content-Type": "application/json" },
-    });
-    if (res.status === 200) {
-      const data = await res.json();
-      const fetchUrl = data.url;
-      const resBlob = await fetch(fetchUrl);
+    try {
+      const data = await avatarHelper(userProfile.userPK, friendId);
+      const resBlob = await fetch(data.url);
       let url = "src/assets/userpage/profile-default-avatar.png";
       if (resBlob.ok) {
         url = URL.createObjectURL(await resBlob.blob());
       }
       const date = formatMessageTime(lastMessageDate);
       const friend = {
-        url: url,
+        url,
         name: friendName,
-        friendId: friendId,
-        lastMessage: lastMessage,
+        friendId,
+        lastMessage,
         lastMessageDate: date,
       };
       SetFriendList((prev) => {
-        const existed = prev.some((friend) => friend.friendId === friendId);
-        if (existed) return prev;
+        if (prev.some((f) => f.friendId === friendId)) return prev;
         return [...prev, friend];
       });
+    } catch (err) {
+      // avatar fetch failed — friend not added to list
     }
   }
 
   async function intializeChatHistory(urlMap) {
-    console.log("Initializing chat history...");
     if (didInitRef.current) return;
     didInitRef.current = true;
-
-    const res = await fetch("api/chat/getChatHistory", {
-      method: "GET",
-      credentials: "include",
-    });
-    if (res.status === 200) {
-      const data = await res.json();
-      //console.log("Chat history data received:", data);
+    try {
+      const data = await getChatHistory();
       for (const chatHistory of data.messages) {
         const friendId = chatHistory.friendId;
-        console.log(`Initializing chat history with friend ${friendId}...`);
         for (const msg of chatHistory.messages) {
-          console.log("Processing message:", msg);
-          console.log("avatar", avatarURL);
           const newMessage = {
             content: msg.content,
             senderId: msg.msgMeta.senderId,
@@ -220,28 +200,18 @@ function UserHomePage({ userProfile, SetUserProfile }) {
             const newMessages = [...oldMessages, newMessage].sort(
               (a, b) => new Date(a.createAt) - new Date(b.createAt),
             );
-            return {
-              ...prev,
-              [friendId]: newMessages,
-            };
+            return { ...prev, [friendId]: newMessages };
           });
         }
       }
+    } catch (err) {
+      // no chat history available
     }
   }
 
   async function initializeFriendList() {
-    // grab friendlist, where each friend consists of :
-    // avatarUrl, friendName, last message, last message date, friendId
-    console.log("Initializing friend list...");
-    const res = await fetch("api/conversations/initializeConversations", {
-      method: "POST",
-      credentials: "include",
-      body: JSON.stringify({ userPK: userProfile.userPK }),
-      headers: { "Content-Type": "application/json" },
-    });
-    if (res.status === 200) {
-      const data = await res.json();
+    try {
+      const data = await initializeConversations(userProfile.userPK);
       const urlMap = {};
       const friendList = data.friendList;
       for (const friend of friendList) {
@@ -260,6 +230,8 @@ function UserHomePage({ userProfile, SetUserProfile }) {
       }
       SetFriendList(friendList);
       return urlMap;
+    } catch (err) {
+      return {};
     }
   }
   function formatMessageTime(dateString) {
@@ -283,86 +255,61 @@ function UserHomePage({ userProfile, SetUserProfile }) {
       return date.toISOString().split("T")[0];
     }
   }
-  async function getUserSummary() {
-    console.log("Fetching user summary...");
-    const res = await fetch("/api/user/getUserSummary", {
-      method: "GET",
-      credentials: "include",
-    });
-    if (res.status === 200) {
-      const data = await res.json();
+  async function loadFriendRequests() {
+    try {
+      const data = await getUserSummary();
       const friendList = data.userSummary.friendId;
       for (const friend of friendList) {
-        // get the friend profile for each
-        const res = await fetch(`api/user/getUserNameById/${friend}`, {
-          method: "GET",
-          credentials: "include",
-        });
-        if (res.status === 200) {
-          const data = await res.json();
-          const name = data.name;
-          const resUrl = await fetch(`api/avatar/profilePic/${friend}`, {
-            method: "GET",
-            credentials: "include",
-          });
-          if (resUrl.status === 200) {
-            const dataUrl = await resUrl.json();
-            const resBlob = await fetch(dataUrl.url);
+        try {
+          const nameData = await getUserNameById(friend);
+          const name = nameData.name;
+          try {
+            const urlData = await getProfilePicUrlById(friend);
+            const resBlob = await fetch(urlData.url);
             let url = "src/assets/userpage/profile-default-avatar.png";
             if (resBlob.ok) {
-              const blob = await resBlob.blob();
-              url = URL.createObjectURL(blob);
+              url = URL.createObjectURL(await resBlob.blob());
             }
-            const friendInfo = { url: url, name: name, id: friend };
+            const friendInfo = { url, name, id: friend };
             SetIncomingFriendRequest((prev) => {
-              const existed = prev.some(
-                (friend) => friend.id === friendInfo.id,
-              );
-              if (existed) return prev;
+              if (prev.some((f) => f.id === friendInfo.id)) return prev;
               return [...prev, friendInfo];
             });
-          } else {
-            // use default image
-            const url = "src/assets/userpage/profile-default-avatar.png";
-            const friendInfo = { url: url, name: data.name, id: friend };
+          } catch (err) {
+            const friendInfo = {
+              url: "src/assets/userpage/profile-default-avatar.png",
+              name,
+              id: friend,
+            };
             SetIncomingFriendRequest((prev) => {
-              const existed = prev.some(
-                (friend) => friend.id === friendInfo.id,
-              );
-              if (existed) return prev;
+              if (prev.some((f) => f.id === friendInfo.id)) return prev;
               return [...prev, friendInfo];
             });
           }
+        } catch (err) {
+          // user not found, skip
         }
       }
+    } catch (err) {
+      // getUserSummary failed
     }
   }
-  // something is wrong here: we are fetching the wrong name and id
   async function getFriendProfile(userId) {
-    const res = await fetch(`/api/avatar/profilePic/${userId}`, {
-      method: "GET",
-      credentials: "include",
-    });
-    if (res.status === 200) {
-      const data = await res.json();
-      const url = data.url;
-      const resName = await fetch(`/api/user/getUserNameById/${userId}`, {
-        method: "GET",
-        credentials: "include",
-      });
-      const nameData = await resName.json();
-      const resUrl = await fetch(url, { method: "GET" });
-      if (resUrl.ok) {
-        const blob = await resUrl.blob();
-        const url = URL.createObjectURL(blob);
-        const friend = { url: url, name: nameData.name, id: userId };
-        SetIncomingFriendRequest((prev) => [...prev, friend]);
-      } else {
-        // use default image
-        const url = "src/assets/userpage/profile-default-avatar.png";
-        const friend = { url: url, name: nameData.name, id: userId };
-        SetIncomingFriendRequest((prev) => [...prev, friend]);
-      }
+    try {
+      const [avatarData, nameData] = await Promise.all([
+        getProfilePicUrlById(userId),
+        getUserNameById(userId),
+      ]);
+      const resUrl = await fetch(avatarData.url, { method: "GET" });
+      const url = resUrl.ok
+        ? URL.createObjectURL(await resUrl.blob())
+        : "src/assets/userpage/profile-default-avatar.png";
+      SetIncomingFriendRequest((prev) => [
+        ...prev,
+        { url, name: nameData.name, id: userId },
+      ]);
+    } catch (err) {
+      // profile fetch failed
     }
   }
   return (

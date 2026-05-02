@@ -9,7 +9,7 @@
     "start": "prisma generate --schema=./server/prisma/schema.prisma && node server/index.js",
     "postinstall": "prisma generate --schema=./server/prisma/schema.prisma",
     "dev": "nodemon server/index.js",
-    "studio": ".\\node_modules\\.bin\\prisma.cmd studio --config .\\prisma.config.ts --port 5556 --browser none"
+    "studio": ".\\node_modules\\.bin\\prisma.cmd studio --config .\\server\\prisma.config.ts --port 5556 --browser none"
   },
   "keywords": [],
   "author": "",

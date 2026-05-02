@@ -5,6 +5,14 @@ import {
   validatePassword,
 } from "../../Service/format.validate.js";
 import { saveProfilePic, saveProfilePicTime } from "../../Service/indexDB.js";
+import { changeAvatar } from "../../Service/avatar.service.js";
+import {
+  changeName,
+  changeEmail,
+  changePassword,
+  confirmPassword as confirmPasswordService,
+  createUserId,
+} from "../../Service/user.service.js";
 function UserSettingInput({
   showUserInput,
   SetShowUserInput,
@@ -28,18 +36,20 @@ function UserSettingInput({
   const [avatarPic, SetAvatarPic] = useState(null);
   const [url, SetUrl] = useState(null);
   const inputFile = useRef(null);
-  async function handleChangeAvatar() {}
-  async function handleChangeName(routePath) {
+  async function handleChangeName() {
     if (!confirmInput()) return;
     try {
-      modifyADisplay(routePath);
+      const data = await changeName(inputValue);
+      SetMessage(data.message);
+      showMessageUIHelper();
       SetUserProfile((prev) => ({ ...prev, name: inputValue }));
     } catch (err) {
       SetMessage(err.message);
       showMessageUIHelper();
     }
   }
-  async function handleChangeEmail(routePath) {
+
+  async function handleChangeEmail() {
     if (!confirmInput()) return;
     if (!validateEmail(inputValue)) {
       SetMessage("Invalid email address");
@@ -47,7 +57,9 @@ function UserSettingInput({
       return;
     }
     try {
-      modifyADisplay(routePath);
+      const data = await changeEmail(inputValue);
+      SetMessage(data.message);
+      showMessageUIHelper();
       SetUserProfile((prev) => ({ ...prev, email: inputValue }));
     } catch (err) {
       SetMessage(err.message);
@@ -55,7 +67,7 @@ function UserSettingInput({
     }
   }
 
-  async function handleChangePassword(routePath) {
+  async function handleChangePassword() {
     if (!confirmInput()) return;
     if (inputValue !== confirmPassword) {
       SetMessage("Passwords do not match");
@@ -70,99 +82,61 @@ function UserSettingInput({
     }
     SetResetPassword(false);
     try {
-      modifyADisplay(routePath);
+      const data = await changePassword(inputValue);
+      SetMessage(data.message);
+      showMessageUIHelper();
     } catch (err) {
       SetMessage(err.message);
       showMessageUIHelper();
     }
   }
 
-  async function handleChangeAvatar(routePath) {
+  async function handleChangeAvatar() {
     if (avatarPic === null) {
       SetMessage("please choose avatar");
       showMessageUIHelper();
       return;
     }
-    SetUseDefaultAvatar(false);
     if (url !== null) {
       URL.revokeObjectURL(url);
     }
     try {
-      const res = await fetch(routePath, {
-        credentials: "include",
-        method: "POST",
-        headers: { "Content-type": "application/json" },
-        body: JSON.stringify({
-          size: avatarPic.size,
-          contentType: avatarPic.type,
-        }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        const uploadUrl = data.signedUrl;
-        const upLoadRes = await fetch(uploadUrl, {
-          method: "PUT",
-          headers: { "Content-type": avatarPic.type },
-          body: avatarPic,
-        });
-        if (!upLoadRes.ok) {
-          SetMessage("Failed to upload avatar to cloud");
-          showMessageUIHelper();
-        }
-        const saveRoute = "/api/avatar/saveAvatar";
-        const saveKeyRes = await fetch(saveRoute, {
-          credentials: "include",
-          method: "POST",
-          headers: { "Content-type": "application/json" },
-          body: JSON.stringify({
-            inputValue: data.key,
-          }),
-        });
-        const newURL = URL.createObjectURL(avatarPic);
-        SetUrl(newURL);
-        SetAvatarURL(newURL);
-        const time = new Date().getTime();
-        await saveProfilePicTime(userProfile.userPK, time);
-        await saveProfilePic(userProfile.userPK, inputFile.current.files[0]);
-        SetUseDefaultAvatar(false);
-        SetMessage("Avatar changed successfully");
-        showMessageUIHelper();
-      } else {
-        SetMessage(data.message);
-        showMessageUIHelper();
-      }
+      await changeAvatar(avatarPic);
+      const newURL = URL.createObjectURL(avatarPic);
+      SetUrl(newURL);
+      SetAvatarURL(newURL);
+      SetUseDefaultAvatar(false);
+      const time = new Date().getTime();
+      await saveProfilePicTime(userProfile.userPK, time);
+      await saveProfilePic(userProfile.userPK, inputFile.current.files[0]);
+      SetMessage("Avatar changed successfully");
+      showMessageUIHelper();
     } catch (err) {
       SetMessage(err.message);
       showMessageUIHelper();
     }
   }
 
-  async function handleConfirmPassword(routePath) {
+  async function handleConfirmPassword() {
     if (!confirmInput()) return;
     try {
-      const res = await modifyHelper(routePath);
-      const data = await res.json();
-      if (res.ok) {
-        SetInputValue("");
-        SetResetPassword(true);
-      } else {
-        SetShowInputUI(false);
-        SetMessage(data.message);
-        showMessageUIHelper();
-      }
+      await confirmPasswordService(inputValue);
+      SetInputValue("");
+      SetResetPassword(true);
     } catch (err) {
+      SetShowInputUI(false);
       SetMessage(err.message);
       showMessageUIHelper();
     }
   }
 
-  async function handleCreateUserId(routePath) {
+  async function handleCreateUserId() {
     if (!confirmInput()) return;
     try {
-      const res = await modifyADisplay(routePath);
-      if (res.ok) {
-        SetUserProfile((prev) => ({ ...prev, userId: inputValue }));
-      }
+      const data = await createUserId(inputValue);
+      SetMessage(data.message);
+      showMessageUIHelper();
+      SetUserProfile((prev) => ({ ...prev, userId: inputValue }));
     } catch (err) {
       SetMessage(err.message);
       showMessageUIHelper();
@@ -191,38 +165,13 @@ function UserSettingInput({
     SetShowMessageUI(true);
   }
 
-  async function modifyHelper(routePath) {
-    const res = await fetch(routePath, {
-      credentials: "include",
-      method: "POST",
-      headers: { "Content-type": "application/json" },
-      body: JSON.stringify({ inputValue }),
-    });
-    return res;
-  }
-  async function modifyADisplay(routePath) {
-    const res = await modifyHelper(routePath);
-    const data = await res.json();
-    SetMessage(data.message);
-    showMessageUIHelper();
-    return res;
-  }
-
   async function handleSubmit() {
-    const createUserIdPath = "/api/user/createUserId";
-    const changeNamePath = "/api/user/changeName";
-    const changeEmailPath = "/api/user/changeEmail";
-    const changePasswordPath = "/api/user/changePassword";
-    const confirmPasswordPath = "/api/user/confirmPassword";
-    const changeAvatarPath = "/api/avatar/changeAvatar";
-    if (inputType === "UserId") handleCreateUserId(createUserIdPath);
-    else if (inputType === "Email") handleChangeEmail(changeEmailPath);
-    else if (inputType === "Password" && resetPassword)
-      handleChangePassword(changePasswordPath);
-    else if (inputType === "Password")
-      handleConfirmPassword(confirmPasswordPath);
-    else if (inputType === "Name") handleChangeName(changeNamePath);
-    else if (inputType === "Avatar") handleChangeAvatar(changeAvatarPath);
+    if (inputType === "UserId") handleCreateUserId();
+    else if (inputType === "Email") handleChangeEmail();
+    else if (inputType === "Password" && resetPassword) handleChangePassword();
+    else if (inputType === "Password") handleConfirmPassword();
+    else if (inputType === "Name") handleChangeName();
+    else if (inputType === "Avatar") handleChangeAvatar();
   }
 
   useEffect(() => {

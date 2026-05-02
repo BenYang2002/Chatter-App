@@ -1,16 +1,13 @@
 import { useEffect } from "react";
 import "./HomeCard.css";
 import { useNavigate } from "react-router-dom";
+import { checkAuth } from "../Service/auth.service";
 function HomeCard({ SetUserProfile, userProfile }) {
   const navigate = useNavigate();
   useEffect(() => {
-    const checkAuth = async () => {
-      const res = await fetch("/api/auth/me", {
-        method: "GET",
-        credentials: "include",
-      });
-      if (res.status === 200) {
-        const data = await res.json();
+    const foo = async () => {
+      try {
+        const data = await checkAuth();
         localStorage.setItem("name", data.user.name);
         localStorage.setItem("email", data.user.email);
         localStorage.setItem("userId", data.user.userId);
@@ -23,9 +20,9 @@ function HomeCard({ SetUserProfile, userProfile }) {
           userPK: data.user.userPK,
         }));
         navigate("/user");
-      }
+      } catch (err) {}
     }; //checkAuth
-    checkAuth();
+    foo();
   }, []);
   return (
     <>

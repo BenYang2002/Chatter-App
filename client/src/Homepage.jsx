@@ -11,6 +11,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { useState } from "react";
 import { useEffect } from "react";
 import socket from "./socket.js";
+import { getUserId } from "./Service/user.service.js";
 function App() {
   useEffect(() => {
     socket.on("connect", () => {
@@ -27,15 +28,12 @@ function App() {
     const getEmail = localStorage.getItem("email");
     const getUserPK = localStorage.getItem("userPK");
 
-    const getUserId = await fetch("/api/user/getUserId", {
-      method: "GET",
-      credentials: "include",
-    });
+    const userIdData = await getUserId().catch(() => null);
 
     const avatarKey = getAvatarKey ? getAvatarKey : null;
     const name = getName ? getName : null;
     const email = getEmail ? getEmail : null;
-    const userId = getUserId && getUserId !== "null" ? getUserId : null;
+    const userId = userIdData?.userId ?? null;
     const userPK = getUserPK && getUserPK !== "null" ? getUserPK : null;
 
     return {

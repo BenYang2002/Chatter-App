@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import ErrorWindow from "./ErrorWindow.jsx";
 import SpinCat from "./SpinCat.jsx";
 import { validateEmail } from "../Service/format.validate.js";
+import { login } from "../Service/auth.service.js";
 function Login({ SetUserProfile }) {
   const navigate = useNavigate();
   const [showError, SetShowError] = useState(false);
@@ -25,13 +26,8 @@ function Login({ SetUserProfile }) {
     }
 
     SetShowSpinCat(true);
-    const res = await fetch("api/auth/login", {
-      method: "POST",
-      headers: { "Content-type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-    if (res.status === 200) {
-      const data = await res.json();
+    try {
+      const data = await login(email, password);
       localStorage.setItem("name", data.name);
       localStorage.setItem("email", data.email);
       localStorage.setItem("userId", data.userId);
@@ -43,13 +39,12 @@ function Login({ SetUserProfile }) {
         userId: data.userId ? data.userId : null,
         userPK: data.userPK ? data.userPK : null,
       }));
-      SetShowSpinCat(false);
       navigate("/user");
-    } else {
-      SetShowSpinCat(false);
-      const data = await res.json();
-      SetErrorMessage(data.message);
+    } catch (err) {
+      SetErrorMessage(err.message);
       SetShowError(true);
+    } finally {
+      SetShowSpinCat(false);
     }
   }
 

@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\shinj\\\\Bamberg2025\\\\Study\\\\Node\\\\project\\\\Chatter\\\\Chatter-App\" -Recurse -Directory)",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\shinj\\\\Bamberg2025\\\\Study\\\\Node\\\\project\\\\Chatter\\\\Chatter-App\" -Recurse -Directory | Select-Object -ExpandProperty FullName | ForEach-Object { $_ -replace [regex]::Escape\\('C:\\\\Users\\\\shinj\\\\Bamberg2025\\\\Study\\\\Node\\\\project\\\\Chatter\\\\Chatter-App'\\), '' } | Sort-Object)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\shinj\\\\Bamberg2025\\\\Study\\\\Node\\\\project\\\\Chatter\\\\Chatter-App\\\\client\\\\src\" -Recurse | Where-Object { $_.Extension -in @\\('.js', '.jsx', '.ts', '.tsx', '.css'\\) } | Select-Object FullName | ForEach-Object { $_ -replace [regex]::Escape\\('C:\\\\Users\\\\shinj\\\\Bamberg2025\\\\Study\\\\Node\\\\project\\\\Chatter\\\\Chatter-App'\\), '' })"
+    ]
+  }
+}

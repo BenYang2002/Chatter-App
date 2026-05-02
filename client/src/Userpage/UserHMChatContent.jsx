@@ -1,5 +1,6 @@
 import "./UserHMChatContent.css";
 import { useState, useEffect, useRef } from "react";
+import { sendMessage } from "../Service/chat.service.js";
 function UserHMChatContent({
   chatContactInitial,
   chatContentName,
@@ -33,26 +34,18 @@ function UserHMChatContent({
     }
   }
   async function handleSendMessage() {
-    if (inputMessage.trim() === "") {
-      return;
-    }
+    if (inputMessage.trim() === "") return;
     const messageSent = inputMessage.trim();
     const creationTime = new Date().toISOString();
     SetInputMessage("");
-    const message = {
-      content: inputMessage,
-      userPK: userProfile.userPK,
-      receiverId: currentChatFriendId,
-      creationTime: creationTime,
-      type: "text",
-    };
-    const response = await fetch("api/chat/sendMessage", {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(message),
-    });
-    if (response.status === 200) {
+    try {
+      await sendMessage({
+        content: inputMessage,
+        userPK: userProfile.userPK,
+        receiverId: currentChatFriendId,
+        creationTime,
+        type: "text",
+      });
       const newMessage = {
         content: messageSent,
         senderId: userProfile.userPK,
@@ -60,16 +53,17 @@ function UserHMChatContent({
         avatarURL: avatarURL,
         type: "text",
       };
+      console.log(newMessage);
       SetChatMessages((prev) => {
         const oldMessages = prev[currentChatFriendId] || [];
         const newMessages = [...oldMessages, newMessage].sort(
           (a, b) => new Date(a.createAt) - new Date(b.createAt),
         );
-        return {
-          ...prev,
-          [currentChatFriendId]: newMessages,
-        };
+        return { ...prev, [currentChatFriendId]: newMessages };
       });
+    } catch (err) {
+      // message failed to send
+      console.error(err);
     }
   }
   useEffect(() => {
