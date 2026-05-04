@@ -1,16 +1,11 @@
-import { useEffect } from "react";
 import "./UserHMSidebar.css";
 import { useState } from "react";
-function UserHMSidebar({
-  SetDisplaySetting,
-  useDefaultAvatar,
-  SetUseDefaultAvatar,
-  avatarURL,
-  SetAvatarURL,
-  userProfile,
-  SetShowFriendPage,
-}) {
-  const [newMessageCircle, SetNewMessageCircle] = useState(false);
+import useUserStore from "../store/useUserStore.js";
+
+function UserHMSidebar({ SetDisplaySetting, SetShowFriendPage }) {
+  const avatarURL = useUserStore((s) => s.avatarURL);
+  const useDefaultAvatar = useUserStore((s) => s.useDefaultAvatar);
+  const [newMessageCircle] = useState(false);
 
   return (
     <>
@@ -38,4 +33,5 @@ function UserHMSidebar({
     </>
   );
 }
+
 export default UserHMSidebar;

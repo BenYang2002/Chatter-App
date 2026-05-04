@@ -1,76 +1,52 @@
 import "./UserHMChatContent.css";
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { sendMessage } from "../Service/chat.service.js";
-function UserHMChatContent({
-  chatContactInitial,
-  chatContentName,
-  inputMessage,
-  SetInputMessage,
-  chatMessages,
-  userProfile,
-  currentChatFriendId,
-  SetChatMessages,
-  avatarURL,
-}) {
+import { formatMessageTime } from "../utils/format.js";
+import useChatStore from "../store/useChatStore.js";
+import useUserStore from "../store/useUserStore.js";
+
+function UserHMChatContent() {
+  const chatMessages = useChatStore((s) => s.chatMessages);
+  const currentChatFriendId = useChatStore((s) => s.currentChatFriendId);
+  const chatContactInitial = useChatStore((s) => s.chatContactInitial);
+  const chatContentName = useChatStore((s) => s.chatContentName);
+  const inputMessage = useChatStore((s) => s.inputMessage);
+  const setInputMessage = useChatStore((s) => s.setInputMessage);
+  const addMessage = useChatStore((s) => s.addMessage);
+  const userProfile = useUserStore((s) => s.userProfile);
+  const avatarURL = useUserStore((s) => s.avatarURL);
+
   const messageEndRef = useRef(null);
-  function formatMessageTime(dateString) {
-    const msgDate = new Date(dateString);
-    const now = new Date();
 
-    const isToday =
-      msgDate.getFullYear() === now.getFullYear() &&
-      msgDate.getMonth() === now.getMonth() &&
-      msgDate.getDate() === now.getDate();
-
-    if (isToday) {
-      // show HH:MM
-      return msgDate.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    } else {
-      // show date
-      return msgDate.toLocaleDateString();
-    }
-  }
   async function handleSendMessage() {
     if (inputMessage.trim() === "") return;
     const messageSent = inputMessage.trim();
     const creationTime = new Date().toISOString();
-    SetInputMessage("");
+    setInputMessage("");
     try {
       await sendMessage({
-        content: inputMessage,
+        content: messageSent,
         userPK: userProfile.userPK,
         receiverId: currentChatFriendId,
         creationTime,
         type: "text",
       });
-      const newMessage = {
+      addMessage(currentChatFriendId, {
         content: messageSent,
         senderId: userProfile.userPK,
         createAt: creationTime,
-        avatarURL: avatarURL,
+        avatarURL,
         type: "text",
-      };
-      console.log(newMessage);
-      SetChatMessages((prev) => {
-        const oldMessages = prev[currentChatFriendId] || [];
-        const newMessages = [...oldMessages, newMessage].sort(
-          (a, b) => new Date(a.createAt) - new Date(b.createAt),
-        );
-        return { ...prev, [currentChatFriendId]: newMessages };
       });
     } catch (err) {
-      // message failed to send
       console.error(err);
     }
   }
+
   useEffect(() => {
-    messageEndRef.current?.scrollIntoView({
-      behavior: "smooth",
-    });
+    messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatMessages, currentChatFriendId]);
+
   return (
     <>
       {!chatContactInitial && (
@@ -91,7 +67,6 @@ function UserHMChatContent({
                       {formatMessageTime(msg.createAt)}
                     </div>
                   </div>
-
                   <div className="my-message-wrapper">
                     <p className="my-message">{msg.content}</p>
                     <img className="my-message-image" src={msg.avatarURL} />
@@ -107,7 +82,6 @@ function UserHMChatContent({
                       {formatMessageTime(msg.createAt)}
                     </div>
                   </div>
-
                   <div className="friend-message-wrapper">
                     <img className="friend-message-image" src={msg.avatarURL} />
                     <p className="friend-message">{msg.content}</p>
@@ -126,7 +100,7 @@ function UserHMChatContent({
             <div className="message-input-textinput">
               <textarea
                 type="text"
-                onChange={(e) => SetInputMessage(e.target.value)}
+                onChange={(e) => setInputMessage(e.target.value)}
                 value={inputMessage}
               ></textarea>
             </div>
@@ -147,4 +121,5 @@ function UserHMChatContent({
     </>
   );
 }
+
 export default UserHMChatContent;

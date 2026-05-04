@@ -5,13 +5,17 @@ import ErrorWindow from "./ErrorWindow.jsx";
 import SpinCat from "./SpinCat.jsx";
 import { validateEmail } from "../Service/format.validate.js";
 import { login } from "../Service/auth.service.js";
-function Login({ SetUserProfile }) {
+import useUserStore from "../store/useUserStore.js";
+
+function Login() {
   const navigate = useNavigate();
+  const updateUserProfile = useUserStore((s) => s.updateUserProfile);
   const [showError, SetShowError] = useState(false);
   const [errorMessage, SetErrorMessage] = useState("");
   const [showSpinCat, SetShowSpinCat] = useState(false);
   const [email, SetEmail] = useState("");
   const [password, SetPassword] = useState("");
+
   async function handleSubmit(e) {
     e.preventDefault();
     if (!email || !password) {
@@ -32,13 +36,12 @@ function Login({ SetUserProfile }) {
       localStorage.setItem("email", data.email);
       localStorage.setItem("userId", data.userId);
       localStorage.setItem("userPK", data.userPK);
-      SetUserProfile((prev) => ({
-        ...prev,
-        name: data.name ? data.name : null,
-        email: data.email ? data.email : null,
-        userId: data.userId ? data.userId : null,
-        userPK: data.userPK ? data.userPK : null,
-      }));
+      updateUserProfile({
+        name: data.name ?? null,
+        email: data.email ?? null,
+        userId: data.userId ?? null,
+        userPK: data.userPK ?? null,
+      });
       navigate("/user");
     } catch (err) {
       SetErrorMessage(err.message);

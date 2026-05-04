@@ -1,31 +1,27 @@
 import "./Register.css";
 import ErrorWindow from "./ErrorWindow";
 import { useState } from "react";
-import { data, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import SpinCat from "./SpinCat";
 import { validateEmail } from "../Service/format.validate.js";
 import { register } from "../Service/auth.service.js";
-function Register({ userProfile, SetUserProfile }) {
+import useUserStore from "../store/useUserStore.js";
+
+function Register() {
   const navigate = useNavigate();
-  // user info states
+  const updateUserProfile = useUserStore((s) => s.updateUserProfile);
+
   const [username, SetName] = useState("");
   const [email, SetEmail] = useState("");
   const [password, SetPassword] = useState("");
-
-  // confirm password states
   const [confirmPassword, SetConfirmPassword] = useState("");
   const [passwordsMatch, SetPasswordsMatch] = useState(true);
-
-  // error window states
   const [showError, SetShowError] = useState(false);
   const [errorMessage, SetErrorMessage] = useState("");
-
-  // change cat's mood
   const [countPassRule, SetCountPass] = useState(0);
   const [visible, SetVisible] = useState(true);
-
-  // show spin cat when loading
   const [showSpinCat, SetShowSpinCat] = useState(false);
+  const [showDialogBox, SetShowDialogBox] = useState(false);
 
   const rules = {
     length: password.length >= 8,
@@ -41,9 +37,6 @@ function Register({ userProfile, SetUserProfile }) {
     { key: "number", label: "At least one number" },
     { key: "special", label: "At least one special character" },
   ];
-
-  // show dialog box when focusing on password input
-  const [showDialogBox, SetShowDialogBox] = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -69,12 +62,7 @@ function Register({ userProfile, SetUserProfile }) {
     SetShowSpinCat(true);
     try {
       const data = await register(username, email, password);
-      SetUserProfile((prev) => ({
-        ...prev,
-        name: username,
-        email: email,
-        userPK: data.userPK,
-      }));
+      updateUserProfile({ name: username, email, userPK: data.userPK });
       localStorage.setItem("name", username);
       localStorage.setItem("email", email);
       localStorage.setItem("userPK", data.userPK);
@@ -198,9 +186,7 @@ function Register({ userProfile, SetUserProfile }) {
                 <button
                   className="submit-button"
                   type="submit"
-                  onClick={(e) => {
-                    handleSubmit(e);
-                  }}
+                  onClick={(e) => handleSubmit(e)}
                 >
                   Register
                 </button>

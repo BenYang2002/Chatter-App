@@ -1,23 +1,22 @@
 import "./UserProfile.css";
 import { useEffect, useState } from "react";
 import UserSettingInput from "./UserSettingInput.jsx";
-function UserProfile({
-  useDefaultAvatar,
-  avatarURL,
-  SetUseDefaultAvatar,
-  SetAvatarURL,
-  userProfile,
-  SetUserProfile,
-}) {
+import useUserStore from "../../store/useUserStore.js";
+
+function UserProfile() {
+  const userProfile = useUserStore((s) => s.userProfile);
+  const avatarURL = useUserStore((s) => s.avatarURL);
+  const useDefaultAvatar = useUserStore((s) => s.useDefaultAvatar);
+
   const [userIdCreated, setUserIdCreated] = useState(false);
   const [showUserInput, SetShowUserInput] = useState(false);
   const [placeholderMSG, SetPlaceHolderMSG] = useState("");
   const [inputType, SetInputType] = useState("");
+
   useEffect(() => {
-    if (userProfile.userId) {
-      setUserIdCreated(true);
-    }
+    if (userProfile.userId) setUserIdCreated(true);
   }, []);
+
   return (
     <>
       {showUserInput && (
@@ -26,10 +25,6 @@ function UserProfile({
           SetShowUserInput={SetShowUserInput}
           placeholderMSG={placeholderMSG}
           inputType={inputType}
-          SetUseDefaultAvatar={SetUseDefaultAvatar}
-          SetAvatarURL={SetAvatarURL}
-          userProfile={userProfile}
-          SetUserProfile={SetUserProfile}
           userIdCreated={userIdCreated}
         />
       )}
@@ -47,15 +42,13 @@ function UserProfile({
           </div>
           <div className="profile-name-container">
             <div className="profile-name">
-              <span>name: {userProfile.name ? userProfile.name : ""} </span>
+              <span>name: {userProfile.name ?? ""}</span>
             </div>
             <div className="profile-email">
-              <span>email: {userProfile.email ? userProfile.email : ""} </span>
+              <span>email: {userProfile.email ?? ""}</span>
             </div>
             <div className="profile-userid">
-              <span>
-                user ID: {userProfile.userId ? userProfile.userId : ""}
-              </span>
+              <span>user ID: {userProfile.userId ?? ""}</span>
             </div>
           </div>
         </div>

@@ -1,14 +1,7 @@
 import "./UserSetting.css";
 import UserProfile from "./UserProfile.jsx";
-function UserSetting({
-  SetDisplaySetting,
-  useDefaultAvatar,
-  avatarURL,
-  SetUseDefaultAvatar,
-  SetAvatarURL,
-  userProfile,
-  SetUserProfile,
-}) {
+
+function UserSetting({ SetDisplaySetting }) {
   return (
     <>
       <div className="userSetting-container">
@@ -26,14 +19,7 @@ function UserSetting({
             </div>
           </div>
           <div className="setting-display">
-            <UserProfile
-              useDefaultAvatar={useDefaultAvatar}
-              avatarURL={avatarURL}
-              SetUseDefaultAvatar={SetUseDefaultAvatar}
-              SetAvatarURL={SetAvatarURL}
-              userProfile={userProfile}
-              SetUserProfile={SetUserProfile}
-            />
+            <UserProfile />
           </div>
         </div>
       </div>

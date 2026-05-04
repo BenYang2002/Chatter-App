@@ -13,17 +13,20 @@ import {
   confirmPassword as confirmPasswordService,
   createUserId,
 } from "../../Service/user.service.js";
+import useUserStore from "../../store/useUserStore.js";
+
 function UserSettingInput({
   showUserInput,
   SetShowUserInput,
   placeholderMSG,
   inputType,
-  SetUseDefaultAvatar,
-  SetAvatarURL,
-  userProfile,
-  SetUserProfile,
   userIdCreated,
 }) {
+  const userProfile = useUserStore((s) => s.userProfile);
+  const updateUserProfile = useUserStore((s) => s.updateUserProfile);
+  const setAvatarURL = useUserStore((s) => s.setAvatarURL);
+  const setUseDefaultAvatar = useUserStore((s) => s.setUseDefaultAvatar);
+
   const [inputValue, SetInputValue] = useState("");
   const [confirmPassword, SetConfirmPassword] = useState("");
   const [showInputUI, SetShowInputUI] = useState(true);
@@ -36,13 +39,14 @@ function UserSettingInput({
   const [avatarPic, SetAvatarPic] = useState(null);
   const [url, SetUrl] = useState(null);
   const inputFile = useRef(null);
+
   async function handleChangeName() {
     if (!confirmInput()) return;
     try {
       const data = await changeName(inputValue);
       SetMessage(data.message);
       showMessageUIHelper();
-      SetUserProfile((prev) => ({ ...prev, name: inputValue }));
+      updateUserProfile({ name: inputValue });
     } catch (err) {
       SetMessage(err.message);
       showMessageUIHelper();
@@ -60,7 +64,7 @@ function UserSettingInput({
       const data = await changeEmail(inputValue);
       SetMessage(data.message);
       showMessageUIHelper();
-      SetUserProfile((prev) => ({ ...prev, email: inputValue }));
+      updateUserProfile({ email: inputValue });
     } catch (err) {
       SetMessage(err.message);
       showMessageUIHelper();
@@ -75,7 +79,7 @@ function UserSettingInput({
       return;
     } else if (!validatePassword(inputValue)) {
       SetMessage(
-        "Password should at least contain: 8 characters, 1 uppercase, 1 lowercase, 1 number, 1 special character",
+        "Password should at least contain: 8 characters, 1 uppercase, 1 lowercase, 1 number, 1 special character"
       );
       showMessageUIHelper();
       return;
@@ -97,15 +101,13 @@ function UserSettingInput({
       showMessageUIHelper();
       return;
     }
-    if (url !== null) {
-      URL.revokeObjectURL(url);
-    }
+    if (url !== null) URL.revokeObjectURL(url);
     try {
       await changeAvatar(avatarPic);
       const newURL = URL.createObjectURL(avatarPic);
       SetUrl(newURL);
-      SetAvatarURL(newURL);
-      SetUseDefaultAvatar(false);
+      setAvatarURL(newURL);
+      setUseDefaultAvatar(false);
       const time = new Date().getTime();
       await saveProfilePicTime(userProfile.userPK, time);
       await saveProfilePic(userProfile.userPK, inputFile.current.files[0]);
@@ -136,12 +138,13 @@ function UserSettingInput({
       const data = await createUserId(inputValue);
       SetMessage(data.message);
       showMessageUIHelper();
-      SetUserProfile((prev) => ({ ...prev, userId: inputValue }));
+      updateUserProfile({ userId: inputValue });
     } catch (err) {
       SetMessage(err.message);
       showMessageUIHelper();
     }
   }
+
   function confirmInput() {
     if (inputValue.length === 0) {
       SetMessage(`Please input your ${inputType}`);
@@ -150,7 +153,6 @@ function UserSettingInput({
       SetShowConfirmUI(false);
       return false;
     }
-    handleSubmit;
     return true;
   }
 
@@ -189,13 +191,11 @@ function UserSettingInput({
           <div className="setting-input-UI">
             <button
               className="setting-input-close"
-              onClick={() => {
-                SetShowUserInput(false);
-              }}
+              onClick={() => SetShowUserInput(false)}
             >
               X
             </button>
-            {!(inputType === "Avatar") && (
+            {inputType !== "Avatar" && (
               <input
                 type="text"
                 placeholder={resetPassword ? "new password" : placeholderMSG}
@@ -237,7 +237,6 @@ function UserSettingInput({
                 />
               </>
             )}
-
             <button
               onClick={() => {
                 if (inputType === "UserId") {
@@ -254,9 +253,7 @@ function UserSettingInput({
           <div className="setting-confirm-UI">
             <button
               className="setting-input-close"
-              onClick={() => {
-                SetShowUserInput(false);
-              }}
+              onClick={() => SetShowUserInput(false)}
             >
               X
             </button>
@@ -264,19 +261,11 @@ function UserSettingInput({
             <input
               type="text"
               className="display-userId"
-              onChange={(e) => {
-                SetInputValue(e.target.value);
-              }}
+              onChange={(e) => SetInputValue(e.target.value)}
               value={inputValue}
             />
             <b>Once being set, userId cannot be changed</b>
-            <button
-              onClick={() => {
-                handleSubmit();
-              }}
-            >
-              Confirm
-            </button>
+            <button onClick={() => handleSubmit()}>Confirm</button>
           </div>
         )}
         {showMessageUI && (
@@ -296,4 +285,5 @@ function UserSettingInput({
     </>
   );
 }
+
 export default UserSettingInput;

@@ -1,15 +1,16 @@
-import UserProfile from "./Setting/UserProfile";
 import "./UserHMContact.css";
 import { useState } from "react";
 import { searchFriend, sendRequest } from "../Service/friend.service.js";
-function Contact({
-  userProfile,
-  friendList,
-  SetChatContactInitial,
-  SetChatContentName,
-  SetInputMessage,
-  SetCurrentChatFriendId,
-}) {
+import useUserStore from "../store/useUserStore.js";
+import useFriendStore from "../store/useFriendStore.js";
+import useChatStore from "../store/useChatStore.js";
+
+function Contact() {
+  const userProfile = useUserStore((s) => s.userProfile);
+  const friendList = useFriendStore((s) => s.friendList);
+  const setChatContact = useChatStore((s) => s.setChatContact);
+  const setInputMessage = useChatStore((s) => s.setInputMessage);
+
   const [displayClose, SetDisplayClose] = useState(false);
   const [searchText, SetSearchText] = useState("");
   const [searchedContact, SetSearchedContact] = useState(false);
@@ -19,12 +20,11 @@ function Contact({
   const [message, SetMessage] = useState("");
   const [friendId, SetFriendId] = useState("");
   const [friendResButton, SetFriendResButton] = useState("Send Friend Request");
+
   async function handleSearch() {
     if (
-      userProfile.userId === null ||
-      userProfile.userId === "" ||
-      userProfile.userId === "null" ||
-      userProfile.userId === undefined
+      !userProfile.userId ||
+      userProfile.userId === "null"
     ) {
       SetSearchedContact(false);
       SetMessage("Please set your own ID before adding friends");
@@ -55,8 +55,8 @@ function Contact({
     SetShowMsg(true);
   }
 
-  async function handleSubmit(friendId) {
-    if (friendId.length === 0) {
+  async function handleSubmit(id) {
+    if (id.length === 0) {
       SetSearchedContact(false);
       SetMessage("Please provide a valid ID");
       SetShowMsg(true);
@@ -65,38 +65,21 @@ function Contact({
     SetMessage("loading...");
     SetShowMsg(true);
     try {
-      const data = await searchFriend(friendId);
-      SetFriendId(friendId);
+      const data = await searchFriend(id);
+      SetFriendId(id);
       const avatar = await fetch(data.urlFriendAvatar, { method: "GET" });
       if (!avatar.ok) {
         SetAvatarUrl("src/assets/userpage/profile-default-avatar.png");
       } else {
-        const blob = await avatar.blob();
-        SetAvatarUrl(URL.createObjectURL(blob));
+        SetAvatarUrl(URL.createObjectURL(await avatar.blob()));
       }
       SetFriendName(data.name);
       SetShowMsg(false);
       SetSearchedContact(true);
-    } catch (err) {
+    } catch {
       SetSearchedContact(false);
-      SetMessage(`User ${friendId} does not exist`);
+      SetMessage(`User ${id} does not exist`);
     }
-  }
-
-  async function sendFriendRequest() {
-    if (friendId.length === 0) {
-      SetMessage("Please provide a valid ID");
-      SetShowMsg(true);
-      return;
-    }
-    SetFriendResButton("sending request...");
-    try {
-      await sendRequest(userProfile.userId, friendId);
-      SetMessage("Friend request sent");
-    } catch (err) {
-      SetMessage(err.message || "Failed to send friend request");
-    }
-    SetShowMsg(true);
   }
 
   return (
@@ -108,9 +91,7 @@ function Contact({
               <div className="friend-search-modal">
                 <button
                   className="close-friend-request"
-                  onClick={(e) => {
-                    SetSearchedContact(false);
-                  }}
+                  onClick={() => SetSearchedContact(false)}
                 >
                   X
                 </button>
@@ -136,9 +117,7 @@ function Contact({
               <div className="error-modal">
                 <button
                   className="close-error-modal"
-                  onClick={(e) => {
-                    SetShowMsg(false);
-                  }}
+                  onClick={() => SetShowMsg(false)}
                 >
                   X
                 </button>
@@ -160,9 +139,7 @@ function Contact({
                   placeholder="Search friends by id"
                   onClick={() => SetDisplayClose(true)}
                   onBlur={() => SetDisplayClose(false)}
-                  onChange={(e) => {
-                    SetSearchText(e.target.value);
-                  }}
+                  onChange={(e) => SetSearchText(e.target.value)}
                   value={searchText}
                 />
               </div>
@@ -170,9 +147,7 @@ function Contact({
                 <div
                   onMouseDown={(e) => e.preventDefault()}
                   className="close"
-                  onClick={() => {
-                    SetSearchText("");
-                  }}
+                  onClick={() => SetSearchText("")}
                 >
                   ❌
                 </div>
@@ -186,10 +161,8 @@ function Contact({
               key={friend.friendId}
               className="contact-container"
               onClick={() => {
-                SetChatContactInitial(false);
-                SetChatContentName(friend.name);
-                SetInputMessage("");
-                SetCurrentChatFriendId(friend.friendId);
+                setChatContact(friend.friendId, friend.name);
+                setInputMessage("");
               }}
             >
               <div className="contact-avatar-container">
@@ -221,4 +194,5 @@ function Contact({
     </>
   );
 }
+
 export default Contact;
